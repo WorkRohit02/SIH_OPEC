@@ -37,6 +37,7 @@ const AUTH_REGISTRATION_SCREENS = [
   'RegistrationStep1',
   'RegistrationStep2',
   'RegistrationStep3',
+  'RegistrationSuccess',
 ];
 
 function AppContent() {

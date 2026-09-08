@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { BellIcon, GlobeIcon, CalendarIcon, ClockIcon, TrendUpIcon, InfoCircleIcon } from '../../components/common/SvgIcons';
 import { useApp } from '../../context/AppContext';
@@ -8,8 +8,27 @@ import { BottomNav } from '../../components/common/BottomNav';
 export const HomeScreen = ({ onNavigate }) => {
   const { user, activeBooking, mandis, activeTab, setActiveTab, selectedCrop, setSelectedCrop } = useApp();
   const [selectedCropFilter, setSelectedCropFilter] = useState(selectedCrop || 'Wheat');
+  const [showUssdModal, setShowUssdModal] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const cropFilters = ['All Crops', 'Wheat', 'Rice', 'Cotton', 'Sugarcane', 'Maize', 'Vegetables'];
+
+  const notificationsList = [
+    {
+      id: 'ussd-1',
+      title: 'USSD Offline Booking Started 📱',
+      desc: 'Dial *199# from any mobile phone to book slots offline without internet!',
+      time: 'Just now',
+      isNew: true
+    },
+    {
+      id: 'slot-1',
+      title: 'Mandi Gate Token Active',
+      desc: 'Your token #TK-8492 for Ghazipur Mandi is confirmed.',
+      time: '2 hours ago',
+      isNew: false
+    }
+  ];
 
   const handleSelectCrop = (crop) => {
     setSelectedCropFilter(crop);
@@ -25,6 +44,85 @@ export const HomeScreen = ({ onNavigate }) => {
 
   return (
     <View style={styles.outerContainer}>
+      {/* USSD Popup Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showUssdModal}
+        onRequestClose={() => setShowUssdModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.ussdHeaderBadge}>
+              <Text style={styles.ussdHeaderBadgeText}>OFFLINE USSD SERVICE</Text>
+            </View>
+            <Text style={styles.modalTitle}>Offline USSD Booking is Live! 📱</Text>
+            <Text style={styles.modalDesc}>
+              No internet connection? Dial our free USSD code on any phone to book slots, check prices & queue position offline!
+            </Text>
+
+            <View style={styles.ussdCodeBox}>
+              <Text style={styles.ussdCodeLabel}>DIAL USSD CODE</Text>
+              <Text style={styles.ussdCodeText}>*199#</Text>
+              <Text style={styles.ussdCodeSub}>Works on all 2G / feature phones (Nokia, Samsung, Jio Phone)</Text>
+            </View>
+
+            <View style={styles.ussdStepsRow}>
+              <Text style={styles.ussdStepText}>1. Dial *199#</Text>
+              <Text style={styles.ussdStepText}>2. Select Mandi & Crop</Text>
+              <Text style={styles.ussdStepText}>3. Get SMS Token</Text>
+            </View>
+
+            <TouchableOpacity 
+              style={styles.modalBtn} 
+              onPress={() => setShowUssdModal(false)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.modalBtnText}>Got It & Continue</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Notifications Drawer Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showNotifications}
+        onRequestClose={() => setShowNotifications(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { maxHeight: '80%' }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: Colors.textPrimary }}>Notifications</Text>
+              <TouchableOpacity onPress={() => setShowNotifications(false)}>
+                <Text style={{ fontSize: 14, color: Colors.primary, fontWeight: '700' }}>Close</Text>
+              </TouchableOpacity>
+            </View>
+
+            {notificationsList.map(n => (
+              <TouchableOpacity 
+                key={n.id}
+                onPress={() => {
+                  if (n.id === 'ussd-1') {
+                    setShowNotifications(false);
+                    setShowUssdModal(true);
+                  }
+                }}
+                style={styles.notifItem}
+              >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <Text style={{ fontWeight: '800', fontSize: 14, color: Colors.primary }}>{n.title}</Text>
+                  {n.isNew && <View style={styles.newBadge}><Text style={styles.newBadgeText}>NEW</Text></View>}
+                </View>
+                <Text style={{ fontSize: 13, color: Colors.textSecondary, marginBottom: 4 }}>{n.desc}</Text>
+                <Text style={{ fontSize: 11, color: Colors.textMuted }}>{n.time}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView contentContainerStyle={styles.container} bounces={false}>
         {/* Top User Header */}
         <View style={styles.topHeader}>
@@ -40,14 +138,31 @@ export const HomeScreen = ({ onNavigate }) => {
             </View>
           </View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.iconCircle}>
+            <TouchableOpacity 
+              style={styles.iconCircle}
+              onPress={() => setShowNotifications(true)}
+            >
               <BellIcon size={20} color={Colors.textPrimary} />
+              <View style={styles.bellDot} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconCircle}>
               <GlobeIcon size={20} color={Colors.textPrimary} />
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* USSD Offline Booking Callout Card */}
+        <TouchableOpacity 
+          style={styles.ussdBannerCard}
+          onPress={() => setShowUssdModal(true)}
+          activeOpacity={0.9}
+        >
+          <View style={styles.ussdBannerBadge}>
+            <Text style={styles.ussdBannerBadgeText}>OFFLINE ACCESS</Text>
+          </View>
+          <Text style={styles.ussdBannerTitle}>Book Mandi Slot via USSD *199#</Text>
+          <Text style={styles.ussdBannerSubtitle}>No internet required! Tap to learn how to book using feature phones.</Text>
+        </TouchableOpacity>
 
         {/* Dynamic Crop Filter Bar */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
@@ -456,5 +571,164 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: Colors.textPrimary,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+  },
+  ussdHeaderBadge: {
+    backgroundColor: '#E6F7EF',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  ussdHeaderBadgeText: {
+    color: '#00B060',
+    fontWeight: '800',
+    fontSize: 11,
+    letterSpacing: 0.5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalDesc: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 18,
+  },
+  ussdCodeBox: {
+    width: '100%',
+    backgroundColor: '#F0FDF4',
+    borderWidth: 2,
+    borderColor: '#A7F3D0',
+    borderStyle: 'dashed',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  ussdCodeLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#047857',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  ussdCodeText: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: '#065F46',
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  ussdCodeSub: {
+    fontSize: 11,
+    color: '#047857',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  ussdStepsRow: {
+    width: '100%',
+    backgroundColor: Colors.inputBg,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+  },
+  ussdStepText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginVertical: 2,
+  },
+  modalBtn: {
+    width: '100%',
+    backgroundColor: Colors.primary,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+  modalBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 15,
+  },
+  ussdBannerCard: {
+    backgroundColor: '#047857',
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 20,
+  },
+  ussdBannerBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  ussdBannerBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  ussdBannerTitle: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  ussdBannerSubtitle: {
+    color: '#E6F7EF',
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  bellDot: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#EF4444',
+  },
+  notifItem: {
+    width: '100%',
+    backgroundColor: Colors.inputBg,
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  newBadge: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  newBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '800',
   },
 });
