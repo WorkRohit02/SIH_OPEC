@@ -54,7 +54,7 @@ export default function OverviewView({
           gap: '6px'
         }}>
           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)' }}></span>
-          Smart Mandi Network
+          OPEC Network
         </div>
       </div>
 

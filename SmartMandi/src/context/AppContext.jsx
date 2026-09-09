@@ -23,6 +23,7 @@ export const AppProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState('Home');
   const [selectedCrop, setSelectedCrop] = useState('Wheat');
+  const [hasSeenUssdModal, setHasSeenUssdModal] = useState(false);
 
   const updateUser = (data) => {
     setUser((prev) => ({ ...prev, ...data }));
@@ -58,6 +59,8 @@ export const AppProvider = ({ children }) => {
         setActiveTab,
         selectedCrop,
         setSelectedCrop,
+        hasSeenUssdModal,
+        setHasSeenUssdModal,
       }}
     >
       {children}

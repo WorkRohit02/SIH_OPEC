@@ -1,51 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon } from '../../components/common/SvgIcons';
+import { ArrowLeftIcon, ArrowRightIcon } from '../../components/common/SvgIcons';
 import { useApp } from '../../context/AppContext';
 
 export const RegistrationStep2Screen = ({ onNext, onBack }) => {
-  const { user, updateUser } = useApp();
+  const { updateUser } = useApp();
 
-  const availableCrops = ['Wheat', 'Rice', 'Cotton', 'Sugarcane', 'Maize', 'Mustard', 'Pulses', 'Other'];
-  
-  // Initially empty land size and empty crop selection as requested
-  const [selectedCrops, setSelectedCrops] = useState([]);
   const [landSize, setLandSize] = useState('');
   const [landUnit, setLandUnit] = useState('Acres');
-  const [customCropName, setCustomCropName] = useState('');
-
-  const [cropDetails, setCropDetails] = useState({});
-
-  const toggleCrop = (crop) => {
-    if (selectedCrops.includes(crop)) {
-      setSelectedCrops(selectedCrops.filter((c) => c !== crop));
-    } else {
-      setSelectedCrops([...selectedCrops, crop]);
-      if (!cropDetails[crop]) {
-        setCropDetails((prev) => ({
-          ...prev,
-          [crop]: { qty: '', date: '' },
-        }));
-      }
-    }
-  };
 
   const handleNext = () => {
-    const finalCrops = selectedCrops.map((c) => {
-      const isOther = c === 'Other';
-      const cropName = isOther ? (customCropName || 'Vegetables/Other') : c;
-      return {
-        cropName,
-        expectedQuintals: parseInt(cropDetails[c]?.qty || '15', 10),
-        harvestDate: cropDetails[c]?.date || '15 Oct 2024',
-      };
-    });
-
     updateUser({
       landSize: parseFloat(landSize) || 5,
       landUnit,
-      crops: finalCrops.length > 0 ? finalCrops : [{ cropName: 'Wheat', expectedQuintals: 25, harvestDate: '12 June 2024' }],
     });
     onNext();
   };
@@ -75,7 +43,7 @@ export const RegistrationStep2Screen = ({ onNext, onBack }) => {
           <View style={[styles.stepCircle, styles.stepCircleActive]}>
             <Text style={styles.stepCircleActiveText}>2</Text>
           </View>
-          <Text style={[styles.stepLabel, styles.stepLabelActive]}>Land & Crop</Text>
+          <Text style={[styles.stepLabel, styles.stepLabelActive]}>Land Details</Text>
         </View>
 
         <View style={styles.stepLine} />
@@ -88,42 +56,7 @@ export const RegistrationStep2Screen = ({ onNext, onBack }) => {
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Your land and crops</Text>
-      <Text style={styles.sectionSubtitle}>SELECT YOUR CROPS (CHOOSE ALL THAT APPLY)</Text>
-
-      {/* Crop Pills Selection */}
-      <View style={styles.cropGrid}>
-        {availableCrops.map((crop) => {
-          const isSelected = selectedCrops.includes(crop);
-          return (
-            <TouchableOpacity
-              key={crop}
-              style={[styles.cropChip, isSelected ? styles.cropChipSelected : styles.cropChipUnselected]}
-              onPress={() => toggleCrop(crop)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.cropChipIcon}>{crop === 'Other' ? '🥦' : '🌾'}</Text>
-              <Text style={[styles.cropChipText, isSelected && styles.cropChipTextSelected]}>
-                {crop} {isSelected ? ' ✓' : ''}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      {/* Custom Other Crop / Vegetable Input Field */}
-      {selectedCrops.includes('Other') && (
-        <View style={styles.otherInputWrapper}>
-          <Text style={styles.otherInputLabel}>Enter Custom Crop or Vegetable Name</Text>
-          <TextInput
-            style={styles.otherInput}
-            value={customCropName}
-            onChangeText={setCustomCropName}
-            placeholder="e.g. Tomato, Potato, Onion, Spinach"
-            placeholderTextColor={Colors.textMuted}
-          />
-        </View>
-      )}
+      <Text style={styles.sectionTitle}>Your land details</Text>
 
       {/* Land Size Section */}
       <Text style={styles.sectionSubtitle}>LAND SIZE</Text>
@@ -155,57 +88,6 @@ export const RegistrationStep2Screen = ({ onNext, onBack }) => {
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Per Crop Details */}
-      {selectedCrops.length > 0 && <Text style={styles.sectionSubtitle}>PER-CROP DETAILS</Text>}
-
-      {selectedCrops.map((crop) => {
-        const title = crop === 'Other' ? (customCropName || 'Other / Vegetables') : crop;
-        return (
-          <View key={crop} style={styles.cropDetailCard}>
-            <View style={styles.cropCardHeader}>
-              <Text style={styles.cropCardTitle}>{title}</Text>
-              <Text style={styles.dropdownIcon}>∨</Text>
-            </View>
-
-            <View style={styles.cropField}>
-              <Text style={styles.cropFieldLabel}>Expected Quantity (quintals)</Text>
-              <TextInput
-                style={styles.cropInput}
-                value={cropDetails[crop]?.qty || ''}
-                onChangeText={(text) =>
-                  setCropDetails((prev) => ({
-                    ...prev,
-                    [crop]: { ...prev[crop], qty: text },
-                  }))
-                }
-                keyboardType="number-pad"
-                placeholder="e.g. 25"
-                placeholderTextColor={Colors.textMuted}
-              />
-            </View>
-
-            <View style={styles.cropField}>
-              <Text style={styles.cropFieldLabel}>Expected Harvest Date</Text>
-              <View style={styles.dateWrapper}>
-                <TextInput
-                  style={styles.cropInputFlex}
-                  value={cropDetails[crop]?.date || ''}
-                  onChangeText={(text) =>
-                    setCropDetails((prev) => ({
-                      ...prev,
-                      [crop]: { ...prev[crop], date: text },
-                    }))
-                  }
-                  placeholder="e.g. 12 June 2024"
-                  placeholderTextColor={Colors.textMuted}
-                />
-                <CalendarIcon size={18} color={Colors.primary} />
-              </View>
-            </View>
-          </View>
-        );
-      })}
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext} activeOpacity={0.85}>
         <Text style={styles.nextButtonText}>Next: Verification</Text>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { WheatLogoIcon, ArrowLeftIcon, ArrowRightIcon } from '../../components/common/SvgIcons';
+import { ArrowLeftIcon, ArrowRightIcon } from '../../components/common/SvgIcons';
 
 export const MobileLoginScreen = ({ onBack, onSendOtp, onKisanId }) => {
   // Mobile number initially EMPTY as requested by user
@@ -15,7 +15,10 @@ export const MobileLoginScreen = ({ onBack, onSendOtp, onKisanId }) => {
 
       <View style={styles.topSection}>
         <View style={styles.logoWrapper}>
-          <WheatLogoIcon size={44} color={Colors.primary} />
+          <Image
+            source={require('../../assets/images/opec_logo.png')}
+            style={{ width: 64, height: 64, borderRadius: 32 }}
+          />
         </View>
         <Text style={styles.title}>Enter your mobile number</Text>
         <Text style={styles.subtitle}>We'll send you an OTP to verify</Text>

@@ -41,10 +41,8 @@ export const RegistrationSuccessScreen = ({ onGoHome, onEditDetails }) => {
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Registered Crops</Text>
-            <Text style={styles.infoValue}>
-              {user.crops?.length > 0 ? user.crops.map((c) => c.cropName).join(', ') : 'Wheat, Rice, Cotton'}
-            </Text>
+            <Text style={styles.infoLabel}>Preferred Mandi</Text>
+            <Text style={styles.infoValue}>{user.preferredMandi || 'Ghazipur Mandi'}</Text>
           </View>
         </View>
       </View>

@@ -29,7 +29,7 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Stepper */}
+      {/* Stepper (2 Steps) */}
       <View style={styles.stepperContainer}>
         <View style={styles.stepItem}>
           <View style={[styles.stepCircle, styles.stepCircleDone]}>
@@ -41,17 +41,8 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
         <View style={[styles.stepLine, styles.stepLineActive]} />
 
         <View style={styles.stepItem}>
-          <View style={[styles.stepCircle, styles.stepCircleDone]}>
-            <Text style={styles.stepDoneCheck}>✓</Text>
-          </View>
-          <Text style={[styles.stepLabel, styles.stepLabelDone]}>Land & Crop</Text>
-        </View>
-
-        <View style={[styles.stepLine, styles.stepLineActive]} />
-
-        <View style={styles.stepItem}>
           <View style={[styles.stepCircle, styles.stepCircleActive]}>
-            <Text style={styles.stepCircleActiveText}>3</Text>
+            <Text style={styles.stepCircleActiveText}>2</Text>
           </View>
           <Text style={[styles.stepLabel, styles.stepLabelActive]}>Verify</Text>
         </View>

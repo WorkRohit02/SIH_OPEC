@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { BellIcon, GlobeIcon, CalendarIcon, ClockIcon, TrendUpIcon, InfoCircleIcon } from '../../components/common/SvgIcons';
 import { useApp } from '../../context/AppContext';
 import { BottomNav } from '../../components/common/BottomNav';
 
 export const HomeScreen = ({ onNavigate }) => {
-  const { user, activeBooking, mandis, activeTab, setActiveTab, selectedCrop, setSelectedCrop } = useApp();
+  const { user, activeBooking, mandis, activeTab, setActiveTab, selectedCrop, setSelectedCrop, hasSeenUssdModal, setHasSeenUssdModal } = useApp();
   const [selectedCropFilter, setSelectedCropFilter] = useState(selectedCrop || 'Wheat');
-  const [showUssdModal, setShowUssdModal] = useState(true);
+  const [showUssdModal, setShowUssdModal] = useState(!hasSeenUssdModal);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const handleCloseUssdModal = () => {
+    setShowUssdModal(false);
+    setHasSeenUssdModal(true);
+  };
 
   const cropFilters = ['All Crops', 'Wheat', 'Rice', 'Cotton', 'Sugarcane', 'Maize', 'Vegetables'];
 
@@ -49,7 +54,7 @@ export const HomeScreen = ({ onNavigate }) => {
         animationType="fade"
         transparent={true}
         visible={showUssdModal}
-        onRequestClose={() => setShowUssdModal(false)}
+        onRequestClose={handleCloseUssdModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
@@ -75,7 +80,7 @@ export const HomeScreen = ({ onNavigate }) => {
 
             <TouchableOpacity 
               style={styles.modalBtn} 
-              onPress={() => setShowUssdModal(false)}
+              onPress={handleCloseUssdModal}
               activeOpacity={0.85}
             >
               <Text style={styles.modalBtnText}>Got It & Continue</Text>
@@ -127,12 +132,12 @@ export const HomeScreen = ({ onNavigate }) => {
         {/* Top User Header */}
         <View style={styles.topHeader}>
           <View style={styles.userSection}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user.name ? user.name.split(' ').map((n) => n[0]).join('') : 'RK'}
-              </Text>
-            </View>
+            <Image
+              source={require('../../assets/images/opec_logo.png')}
+              style={{ width: 44, height: 44, borderRadius: 22, marginRight: 10 }}
+            />
             <View>
+              <Text style={{ fontSize: 10, fontWeight: '800', color: Colors.primary, letterSpacing: 0.5 }}>OPEC APP</Text>
               <Text style={styles.greeting}>Namaste, {user.name || 'Ramesh Kumar'}</Text>
               <Text style={styles.location}>{user.village || 'Khera, Delhi'}</Text>
             </View>

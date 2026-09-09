@@ -105,6 +105,35 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
+    splits {
+        abi {
+            reset()
+            enable true
+            universalApk true
+            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+    }
+    packagingOptions {
+        doNotStrip "**/*.so"
+    }
+}
+
+// Automatically strip native C++ debug symbols using NDK llvm-strip to shrink APK size from ~700MB to ~15-30MB
+tasks.matching { it.name == 'mergeReleaseNativeLibs' }.configureEach { task ->
+    task.doLast {
+        def ndkDir = project.android.ndkDirectory.absolutePath
+        def llvmStrip = "${ndkDir}/toolchains/llvm/prebuilt/windows-x86_64/bin/llvm-strip.exe"
+        if (!file(llvmStrip).exists()) {
+            llvmStrip = "llvm-strip"
+        }
+        project.fileTree(dir: "${buildDir}/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib", include: '**/*.so').each { soFile ->
+            try {
+                "\"${llvmStrip}\" --strip-unneeded \"${soFile.absolutePath}\"".execute().waitFor()
+            } catch (Exception e) {
+                // Ignore strip error on individual library if any
+            }
+        }
+    }
 }
 
 dependencies {

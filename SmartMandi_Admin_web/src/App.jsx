@@ -113,7 +113,7 @@ export default function App() {
         currentUser={currentUser}
         onLogout={() => {
           setCurrentUser(null);
-          showToast('Logged out of Smart Mandi Console', 'info');
+          showToast('Logged out of OPEC Console', 'info');
         }}
       />
 

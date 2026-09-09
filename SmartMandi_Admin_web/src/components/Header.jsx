@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import opecLogo from '../assets/opec_logo.png';
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -75,24 +76,20 @@ export default function Header({
         
         {/* Brand Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            background: 'var(--primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            boxShadow: '0 4px 10px rgba(0, 176, 96, 0.3)'
-          }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-          </div>
+          <img 
+            src={opecLogo} 
+            alt="OPEC Logo" 
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              boxShadow: '0 4px 12px rgba(0, 176, 96, 0.3)'
+            }}
+          />
           <div>
             <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)', leading: 1.1 }}>
-              Smart Mandi
+              OPEC
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.02em' }}>
               Admin Console

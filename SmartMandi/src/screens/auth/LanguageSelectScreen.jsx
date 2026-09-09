@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { WheatLogoIcon } from '../../components/common/SvgIcons';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { useApp } from '../../context/AppContext';
 
@@ -32,9 +31,12 @@ export const LanguageSelectScreen = ({ onNext }) => {
       >
         <View style={styles.topSection}>
           <View style={styles.logoWrapper}>
-            <WheatLogoIcon size={46} color="#FFFFFF" />
+            <Image 
+              source={require('../../assets/images/opec_logo.png')} 
+              style={{ width: 64, height: 64, borderRadius: 32 }} 
+            />
           </View>
-          <Text style={styles.title}>Smart Mandi</Text>
+          <Text style={styles.title}>OPEC</Text>
           <Text style={styles.subtitle}>Sell your crop. Track your queue. Get fair prices.</Text>
         </View>
 

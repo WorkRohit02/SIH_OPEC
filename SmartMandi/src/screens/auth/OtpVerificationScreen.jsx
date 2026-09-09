@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { ArrowLeftIcon } from '../../components/common/SvgIcons';
 
 export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
-  // OTP blocks initially EMPTY as requested by user
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(28);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+
+  const inputRefs = useRef([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -15,10 +17,43 @@ export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      inputRefs.current[0]?.focus();
+    }, 100);
+    return () => clearTimeout(timeout);
+  }, []);
+
   const handleDigitChange = (text, index) => {
+    // Handle multi-character paste (e.g. pasting "123456")
+    if (text.length > 1) {
+      const digits = text.replace(/[^0-9]/g, '').slice(0, 6).split('');
+      const newOtp = [...otp];
+      digits.forEach((d, i) => {
+        if (i < 6) newOtp[i] = d;
+      });
+      setOtp(newOtp);
+      const nextFocus = Math.min(digits.length, 5);
+      inputRefs.current[nextFocus]?.focus();
+      return;
+    }
+
     const newOtp = [...otp];
     newOtp[index] = text;
     setOtp(newOtp);
+
+    // Auto-advance to next box if character was entered
+    if (text && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyPress = (e, index) => {
+    if (e.nativeEvent.key === 'Backspace') {
+      if (!otp[index] && index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    }
   };
 
   return (
@@ -38,7 +73,7 @@ export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
 
         <View style={styles.otpGrid}>
           {otp.map((digit, idx) => {
-            const isFocused = idx === 0 && !digit;
+            const isFocused = focusedIndex === idx;
             return (
               <View
                 key={idx}
@@ -49,12 +84,16 @@ export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
                 ]}
               >
                 <TextInput
+                  ref={(ref) => (inputRefs.current[idx] = ref)}
                   style={styles.otpInput}
                   keyboardType="number-pad"
-                  maxLength={1}
+                  maxLength={6}
                   value={digit}
                   onChangeText={(text) => handleDigitChange(text, idx)}
+                  onKeyPress={(e) => handleKeyPress(e, idx)}
+                  onFocus={() => setFocusedIndex(idx)}
                   placeholder=""
+                  selectTextOnFocus
                 />
               </View>
             );

@@ -9,7 +9,6 @@ import { LanguageSelectScreen } from './src/screens/auth/LanguageSelectScreen';
 import { MobileLoginScreen } from './src/screens/auth/MobileLoginScreen';
 import { OtpVerificationScreen } from './src/screens/auth/OtpVerificationScreen';
 import { RegistrationStep1Screen } from './src/screens/registration/RegistrationStep1Screen';
-import { RegistrationStep2Screen } from './src/screens/registration/RegistrationStep2Screen';
 import { RegistrationStep3Screen } from './src/screens/registration/RegistrationStep3Screen';
 import { RegistrationSuccessScreen } from './src/screens/registration/RegistrationSuccessScreen';
 import { HomeScreen } from './src/screens/home/HomeScreen';
@@ -35,7 +34,6 @@ const AUTH_REGISTRATION_SCREENS = [
   'MobileLogin',
   'OtpVerification',
   'RegistrationStep1',
-  'RegistrationStep2',
   'RegistrationStep3',
   'RegistrationSuccess',
 ];
@@ -80,16 +78,8 @@ function AppContent() {
       case 'RegistrationStep1':
         return (
           <RegistrationStep1Screen
-            onNext={() => navigate('RegistrationStep2')}
-            onBack={() => navigate('MobileLogin')}
-          />
-        );
-
-      case 'RegistrationStep2':
-        return (
-          <RegistrationStep2Screen
             onNext={() => navigate('RegistrationStep3')}
-            onBack={() => navigate('RegistrationStep1')}
+            onBack={() => navigate('MobileLogin')}
           />
         );
 
@@ -97,7 +87,7 @@ function AppContent() {
         return (
           <RegistrationStep3Screen
             onSubmit={() => navigate('RegistrationSuccess')}
-            onBack={() => navigate('RegistrationStep2')}
+            onBack={() => navigate('RegistrationStep1')}
           />
         );
 

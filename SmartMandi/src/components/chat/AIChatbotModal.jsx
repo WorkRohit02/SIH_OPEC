@@ -24,7 +24,7 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
     {
       id: '1',
       sender: 'ai',
-      text: `Namaste ${user?.name || 'Kisan Ji'}! 🙏 I am your SmartMandi AI Assistant.\nHow can I help you today with prices, slot booking, or mandi queues?`,
+      text: `Namaste ${user?.name || 'Kisan Ji'}! 🙏 I am your OPEC AI Assistant.\nHow can I help you today with prices, slot booking, or mandi queues?`,
       time: 'Just now',
     },
   ]);

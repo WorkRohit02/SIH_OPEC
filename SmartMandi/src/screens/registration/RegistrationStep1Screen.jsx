@@ -6,12 +6,12 @@ import { useApp } from '../../context/AppContext';
 
 export const RegistrationStep1Screen = ({ onNext, onBack }) => {
   const { user, updateUser } = useApp();
-  // Form fields initially EMPTY as requested by user
   const [name, setName] = useState(user.name || '');
   const [village, setVillage] = useState(user.village || '');
   const [state, setState] = useState(user.state || '');
   const [pincode, setPincode] = useState(user.pincode || '');
   const [dob, setDob] = useState(user.dob || '');
+  const [preferredMandi, setPreferredMandi] = useState(user.preferredMandi || '');
 
   const handleNext = () => {
     updateUser({
@@ -20,6 +20,7 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
       state: state || 'Delhi',
       pincode: pincode || '110033',
       dob: dob || '15/08/1984',
+      preferredMandi: preferredMandi || 'Ghazipur Mandi',
     });
     onNext();
   };
@@ -34,7 +35,7 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
         <View style={{ width: 24 }} />
       </View>
 
-      {/* Stepper Header */}
+      {/* Stepper Header (2 Steps) */}
       <View style={styles.stepperContainer}>
         <View style={styles.stepItem}>
           <View style={[styles.stepCircle, styles.stepCircleActive]}>
@@ -48,15 +49,6 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
         <View style={styles.stepItem}>
           <View style={styles.stepCircle}>
             <Text style={styles.stepCircleText}>2</Text>
-          </View>
-          <Text style={styles.stepLabel}>Land & Crop</Text>
-        </View>
-
-        <View style={styles.stepLine} />
-
-        <View style={styles.stepItem}>
-          <View style={styles.stepCircle}>
-            <Text style={styles.stepCircleText}>3</Text>
           </View>
           <Text style={styles.stepLabel}>Verify</Text>
         </View>
@@ -114,6 +106,17 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
       </View>
 
       <View style={styles.fieldGroup}>
+        <Text style={styles.fieldLabel}>Nearest / Preferred Mandi</Text>
+        <TextInput
+          style={styles.input}
+          value={preferredMandi}
+          onChangeText={setPreferredMandi}
+          placeholder="e.g. Ghazipur Mandi, Azadpur Mandi"
+          placeholderTextColor={Colors.textMuted}
+        />
+      </View>
+
+      <View style={styles.fieldGroup}>
         <Text style={styles.fieldLabel}>Date of Birth</Text>
         <View style={styles.dateInputWrapper}>
           <TextInput
@@ -128,7 +131,7 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
       </View>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext} activeOpacity={0.85}>
-        <Text style={styles.nextButtonText}>Next: Land & Crop</Text>
+        <Text style={styles.nextButtonText}>Next: Verification</Text>
         <ArrowRightIcon size={20} color="#FFFFFF" />
       </TouchableOpacity>
     </ScrollView>

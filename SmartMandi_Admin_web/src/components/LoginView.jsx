@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import opecLogo from '../assets/opec_logo.png';
 import { 
   Lock, 
   Phone, 
@@ -107,23 +108,19 @@ export default function LoginView({ onLoginSuccess, showToast }) {
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '36px' }}>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: 'white',
-                color: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
-              </div>
+              <img 
+                src={opecLogo} 
+                alt="OPEC Logo" 
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }}
+              />
               <div>
-                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, lineHeight: 1.1 }}>Smart Mandi</h2>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, lineHeight: 1.1 }}>OPEC</h2>
                 <p style={{ fontSize: '0.75rem', opacity: 0.9, letterSpacing: '0.04em' }}>NATIONAL AGRICULTURAL PORTAL</p>
               </div>
             </div>
