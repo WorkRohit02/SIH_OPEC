@@ -5,14 +5,14 @@ import { useApp } from '../../context/AppContext';
 import { BottomNav } from '../../components/common/BottomNav';
 
 export const ProfileScreen = ({ onNavigate, onLogout }) => {
-  const { user, activeTab, setActiveTab } = useApp();
+  const { user, setActiveTab, language, t } = useApp();
 
   return (
     <View style={styles.outerContainer}>
       <ScrollView contentContainerStyle={styles.container} bounces={false}>
         {/* Header */}
         <View style={styles.headerRow}>
-          <Text style={styles.screenTitle}>Profile</Text>
+          <Text style={styles.screenTitle}>{t('profile')}</Text>
           <TouchableOpacity style={styles.editCircle}>
             <Text style={styles.editIcon}>✏️</Text>
           </TouchableOpacity>
@@ -107,10 +107,10 @@ export const ProfileScreen = ({ onNavigate, onLogout }) => {
         {/* Account Links */}
         <Text style={styles.sectionHeaderTitle}>Account</Text>
         <View style={styles.cardNoPadding}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => onNavigate('LanguageSelect')}>
             <Text style={styles.menuIcon}>🌐</Text>
-            <Text style={styles.menuLabel}>Language</Text>
-            <Text style={styles.menuVal}>— Hindi ›</Text>
+            <Text style={styles.menuLabel}>{t('language')}</Text>
+            <Text style={styles.menuVal}>— {language} ›</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem}>
@@ -145,13 +145,13 @@ export const ProfileScreen = ({ onNavigate, onLogout }) => {
       </ScrollView>
 
       <BottomNav
-        currentTab={activeTab}
+        currentTab="More"
         onSelectTab={(tab) => {
           setActiveTab(tab);
           if (tab === 'Home') onNavigate('Home');
           else if (tab === 'Queue') onNavigate('LiveQueue');
           else if (tab === 'Payments') onNavigate('Payments');
-          else if (tab === 'Grievance') onNavigate('Grievance');
+          else if (tab === 'More') onNavigate('MoreServices');
         }}
       />
     </View>

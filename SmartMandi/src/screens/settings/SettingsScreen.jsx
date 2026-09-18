@@ -4,8 +4,8 @@ import { Colors } from '../../theme/colors';
 import { ArrowLeftIcon } from '../../components/common/SvgIcons';
 import { useApp } from '../../context/AppContext';
 
-export const SettingsScreen = ({ onBack }) => {
-  const { settings, updateSettings } = useApp();
+export const SettingsScreen = ({ onBack, onNavigate }) => {
+  const { settings, updateSettings, language, t } = useApp();
 
   return (
     <ScrollView contentContainerStyle={styles.container} bounces={false}>
@@ -13,16 +13,16 @@ export const SettingsScreen = ({ onBack }) => {
         <TouchableOpacity onPress={onBack}>
           <ArrowLeftIcon size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerTitle}>{t('settings')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       {/* Language Section */}
-      <Text style={styles.sectionHeader}>Language</Text>
+      <Text style={styles.sectionHeader}>{t('language')}</Text>
       <View style={styles.cardGroup}>
-        <TouchableOpacity style={styles.rowItem}>
+        <TouchableOpacity style={styles.rowItem} onPress={() => onNavigate && onNavigate('LanguageSelect')}>
           <Text style={styles.rowLabel}>App Language</Text>
-          <Text style={styles.rowVal}>हिंदी (Hindi) ›</Text>
+          <Text style={styles.rowVal}>{language} ›</Text>
         </TouchableOpacity>
       </View>
 

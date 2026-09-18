@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'rea
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { useApp } from '../../context/AppContext';
 
-export const LanguageSelectScreen = ({ onNext }) => {
-  const { language, setLanguage } = useApp();
+export const LanguageSelectScreen = ({ onNext, onSkipToHome }) => {
+  const { language, setLanguage, t } = useApp();
   const [selectedLang, setSelectedLang] = useState(language || 'Hindi');
 
   const languages = [
@@ -30,6 +30,15 @@ export const LanguageSelectScreen = ({ onNext }) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.topSection}>
+          {/* Top Quick Access to Home Button */}
+          <TouchableOpacity 
+            style={styles.topHomeBtn} 
+            onPress={onSkipToHome}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.topHomeBtnText}>{t('topHomeBtn')}</Text>
+          </TouchableOpacity>
+
           <View style={styles.logoWrapper}>
             <Image 
               source={require('../../assets/images/opec_logo.png')} 
@@ -37,11 +46,13 @@ export const LanguageSelectScreen = ({ onNext }) => {
             />
           </View>
           <Text style={styles.title}>OPEC</Text>
-          <Text style={styles.subtitle}>Sell your crop. Track your queue. Get fair prices.</Text>
+          <Text style={styles.subtitle}>{t('opecSubtitle')}</Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Choose your language</Text>
+          <Text style={styles.cardTitle}>{t('chooseLanguage')}</Text>
+
+          {/* Languages Grid */}
           <View style={styles.grid}>
             {languages.map((lang) => {
               const isSelected = selectedLang === lang.label;
@@ -60,12 +71,19 @@ export const LanguageSelectScreen = ({ onNext }) => {
             })}
           </View>
 
+          {/* Primary Registration Button */}
           <TouchableOpacity style={styles.primaryButton} onPress={onNext} activeOpacity={0.85}>
-            <Text style={styles.primaryButtonText}>Get Started</Text>
+            <Text style={styles.primaryButtonText}>{t('getStarted')}</Text>
           </TouchableOpacity>
 
+          {/* Already Account Button */}
           <TouchableOpacity style={styles.linkButton} onPress={onNext} activeOpacity={0.7}>
-            <Text style={styles.linkText}>I already have an account</Text>
+            <Text style={styles.linkText}>{t('alreadyAccount')}</Text>
+          </TouchableOpacity>
+
+          {/* Direct Home Skip Button */}
+          <TouchableOpacity style={styles.homeSkipBtn} onPress={onSkipToHome} activeOpacity={0.8}>
+            <Text style={styles.homeSkipText}>{t('goToHome')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -98,6 +116,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  topHomeBtn: {
+    alignSelf: 'flex-end',
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  topHomeBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
   logoWrapper: {
     width: 82,
     height: 82,
@@ -108,17 +141,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '800',
+    fontSize: 30,
+    fontWeight: '900',
     color: '#FFFFFF',
     marginBottom: 6,
-    letterSpacing: -0.3,
+    letterSpacing: 1,
   },
   subtitle: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.88)',
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
     lineHeight: 20,
+    fontWeight: '500',
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -204,6 +238,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  homeSkipBtn: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    marginTop: 12,
+    backgroundColor: '#F0FDF4',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  homeSkipText: {
+    color: '#166534',
+    fontSize: 14,
+    fontWeight: '700',
   },
   pagination: {
     flexDirection: 'row',

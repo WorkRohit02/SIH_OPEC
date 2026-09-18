@@ -1,22 +1,55 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { BellIcon, GlobeIcon, CalendarIcon, ClockIcon, TrendUpIcon, InfoCircleIcon } from '../../components/common/SvgIcons';
+import { BellIcon, GlobeIcon, CalendarIcon } from '../../components/common/SvgIcons';
 import { useApp } from '../../context/AppContext';
 import { BottomNav } from '../../components/common/BottomNav';
 
 export const HomeScreen = ({ onNavigate }) => {
-  const { user, activeBooking, mandis, activeTab, setActiveTab, selectedCrop, setSelectedCrop, hasSeenUssdModal, setHasSeenUssdModal } = useApp();
+  const { 
+    user, 
+    activeBooking, 
+    mandis, 
+    activeTab, 
+    setActiveTab, 
+    selectedCrop, 
+    setSelectedCrop, 
+    hasSeenUssdModal, 
+    setHasSeenUssdModal, 
+    language, 
+    setLanguage, 
+    isTranslating,
+    t 
+  } = useApp();
+
   const [selectedCropFilter, setSelectedCropFilter] = useState(selectedCrop || 'Wheat');
   const [showUssdModal, setShowUssdModal] = useState(!hasSeenUssdModal);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
 
   const handleCloseUssdModal = () => {
     setShowUssdModal(false);
     setHasSeenUssdModal(true);
   };
 
-  const cropFilters = ['All Crops', 'Wheat', 'Rice', 'Cotton', 'Sugarcane', 'Maize', 'Vegetables'];
+  const cropFilters = [
+    { key: 'All Crops', labelKey: 'allCrops' },
+    { key: 'Wheat', labelKey: 'wheat' },
+    { key: 'Rice', labelKey: 'rice' },
+    { key: 'Cotton', labelKey: 'cotton' },
+    { key: 'Sugarcane', labelKey: 'sugarcane' },
+    { key: 'Maize', labelKey: 'maize' },
+    { key: 'Vegetables', labelKey: 'vegetables' },
+  ];
+
+  const languagesList = [
+    { code: 'hi', name: 'हिंदी (Hindi)', label: 'Hindi' },
+    { code: 'en', name: 'English', label: 'English' },
+    { code: 'pa', name: 'ਪੰਜਾਬੀ (Punjabi)', label: 'Punjabi' },
+    { code: 'mr', name: 'मराठी (Marathi)', label: 'Marathi' },
+    { code: 'te', name: 'తెలుగు (Telugu)', label: 'Telugu' },
+    { code: 'ta', name: 'தமிழ் (Tamil)', label: 'Tamil' },
+  ];
 
   const notificationsList = [
     {
@@ -35,16 +68,14 @@ export const HomeScreen = ({ onNavigate }) => {
     }
   ];
 
-  const handleSelectCrop = (crop) => {
-    setSelectedCropFilter(crop);
-    setSelectedCrop(crop === 'All Crops' ? 'Wheat' : crop);
+  const handleSelectCrop = (cropKey) => {
+    setSelectedCropFilter(cropKey);
+    setSelectedCrop(cropKey === 'All Crops' ? 'Wheat' : cropKey);
   };
 
-  const handleQuickAction = (action) => {
-    if (action === 'Book a Slot') onNavigate('BookSlot', { mandi: mandis[0], initialCrop: selectedCropFilter });
-    else if (action === 'Check Prices') onNavigate('PriceTrends', { crop: selectedCropFilter });
-    else if (action === 'Track Queue') onNavigate('LiveQueue');
-    else if (action === 'Raise Issue') onNavigate('Grievance');
+  const handleSelectLanguageFromDropdown = (langLabel) => {
+    setLanguage(langLabel);
+    setShowLangDropdown(false);
   };
 
   return (
@@ -59,23 +90,23 @@ export const HomeScreen = ({ onNavigate }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.ussdHeaderBadge}>
-              <Text style={styles.ussdHeaderBadgeText}>OFFLINE USSD SERVICE</Text>
+              <Text style={styles.ussdHeaderBadgeText}>{t('offlineUssdService')}</Text>
             </View>
-            <Text style={styles.modalTitle}>Offline USSD Booking is Live! 📱</Text>
+            <Text style={styles.modalTitle}>{t('ussdModalTitle')}</Text>
             <Text style={styles.modalDesc}>
-              No internet connection? Dial our free USSD code on any phone to book slots, check prices & queue position offline!
+              {t('ussdModalDesc')}
             </Text>
 
             <View style={styles.ussdCodeBox}>
-              <Text style={styles.ussdCodeLabel}>DIAL USSD CODE</Text>
+              <Text style={styles.ussdCodeLabel}>{t('dialUssdCode')}</Text>
               <Text style={styles.ussdCodeText}>*199#</Text>
-              <Text style={styles.ussdCodeSub}>Works on all 2G / feature phones (Nokia, Samsung, Jio Phone)</Text>
+              <Text style={styles.ussdCodeSub}>{t('ussdWorksOn')}</Text>
             </View>
 
             <View style={styles.ussdStepsRow}>
-              <Text style={styles.ussdStepText}>1. Dial *199#</Text>
-              <Text style={styles.ussdStepText}>2. Select Mandi & Crop</Text>
-              <Text style={styles.ussdStepText}>3. Get SMS Token</Text>
+              <Text style={styles.ussdStepText}>{t('ussdStep1')}</Text>
+              <Text style={styles.ussdStepText}>{t('ussdStep2')}</Text>
+              <Text style={styles.ussdStepText}>{t('ussdStep3')}</Text>
             </View>
 
             <TouchableOpacity 
@@ -83,7 +114,7 @@ export const HomeScreen = ({ onNavigate }) => {
               onPress={handleCloseUssdModal}
               activeOpacity={0.85}
             >
-              <Text style={styles.modalBtnText}>Got It & Continue</Text>
+              <Text style={styles.modalBtnText}>{t('gotItContinue')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -99,9 +130,9 @@ export const HomeScreen = ({ onNavigate }) => {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, { maxHeight: '80%' }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: Colors.textPrimary }}>Notifications</Text>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: Colors.textPrimary }}>{t('notifications')}</Text>
               <TouchableOpacity onPress={() => setShowNotifications(false)}>
-                <Text style={{ fontSize: 14, color: Colors.primary, fontWeight: '700' }}>Close</Text>
+                <Text style={{ fontSize: 14, color: Colors.primary, fontWeight: '700' }}>{t('close')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -118,7 +149,7 @@ export const HomeScreen = ({ onNavigate }) => {
               >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <Text style={{ fontWeight: '800', fontSize: 14, color: Colors.primary }}>{n.title}</Text>
-                  {n.isNew && <View style={styles.newBadge}><Text style={styles.newBadgeText}>NEW</Text></View>}
+                  {n.isNew && <View style={styles.newBadge}><Text style={styles.newBadgeText}>{t('new')}</Text></View>}
                 </View>
                 <Text style={{ fontSize: 13, color: Colors.textSecondary, marginBottom: 4 }}>{n.desc}</Text>
                 <Text style={{ fontSize: 11, color: Colors.textMuted }}>{n.time}</Text>
@@ -126,6 +157,46 @@ export const HomeScreen = ({ onNavigate }) => {
             ))}
           </View>
         </View>
+      </Modal>
+
+      {/* Language Selection Dropdown Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showLangDropdown}
+        onRequestClose={() => setShowLangDropdown(false)}
+      >
+        <TouchableOpacity 
+          style={styles.dropdownModalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowLangDropdown(false)}
+        >
+          <View style={styles.langDropdownCard}>
+            <View style={styles.langDropdownHeader}>
+              <Text style={styles.langDropdownTitle}>{t('selectLanguage')}</Text>
+              <TouchableOpacity onPress={() => setShowLangDropdown(false)}>
+                <Text style={{ fontSize: 14, color: Colors.textMuted, fontWeight: '700' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {languagesList.map((langItem) => {
+              const isSelected = language === langItem.label;
+              return (
+                <TouchableOpacity
+                  key={langItem.code}
+                  style={[styles.langOptionItem, isSelected && styles.langOptionItemActive]}
+                  onPress={() => handleSelectLanguageFromDropdown(langItem.label)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.langOptionText, isSelected && styles.langOptionTextActive]}>
+                    {langItem.name}
+                  </Text>
+                  {isSelected && <Text style={styles.checkmarkText}>✓</Text>}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </TouchableOpacity>
       </Modal>
 
       <ScrollView contentContainerStyle={styles.container} bounces={false}>
@@ -137,12 +208,15 @@ export const HomeScreen = ({ onNavigate }) => {
               style={{ width: 44, height: 44, borderRadius: 22, marginRight: 10 }}
             />
             <View>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: Colors.primary, letterSpacing: 0.5 }}>OPEC APP</Text>
-              <Text style={styles.greeting}>Namaste, {user.name || 'Ramesh Kumar'}</Text>
+              {/* OPEC word is preserved untranslated */}
+              <Text style={{ fontSize: 10, fontWeight: '800', color: Colors.primary, letterSpacing: 0.5 }}>OPEC</Text>
+              <Text style={styles.greeting}>{t('welcome')}, {user.name || 'Ramesh Kumar'}</Text>
               <Text style={styles.location}>{user.village || 'Khera, Delhi'}</Text>
             </View>
           </View>
+
           <View style={styles.headerIcons}>
+            {/* Bell Icon */}
             <TouchableOpacity 
               style={styles.iconCircle}
               onPress={() => setShowNotifications(true)}
@@ -150,8 +224,16 @@ export const HomeScreen = ({ onNavigate }) => {
               <BellIcon size={20} color={Colors.textPrimary} />
               <View style={styles.bellDot} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconCircle}>
-              <GlobeIcon size={20} color={Colors.textPrimary} />
+
+            {/* Language Selector Dropdown Trigger Button */}
+            <TouchableOpacity 
+              style={styles.langPillButton} 
+              onPress={() => setShowLangDropdown(true)}
+              activeOpacity={0.8}
+            >
+              <GlobeIcon size={18} color={Colors.primary} />
+              <Text style={styles.langPillText}>{language}</Text>
+              <Text style={styles.langPillArrow}>{isTranslating ? '⏳' : '▼'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -163,48 +245,48 @@ export const HomeScreen = ({ onNavigate }) => {
           activeOpacity={0.9}
         >
           <View style={styles.ussdBannerBadge}>
-            <Text style={styles.ussdBannerBadgeText}>OFFLINE ACCESS</Text>
+            <Text style={styles.ussdBannerBadgeText}>{t('offlineAccess')}</Text>
           </View>
-          <Text style={styles.ussdBannerTitle}>Book Mandi Slot via USSD *199#</Text>
-          <Text style={styles.ussdBannerSubtitle}>No internet required! Tap to learn how to book using feature phones.</Text>
+          <Text style={styles.ussdBannerTitle}>{t('bookMandiViaUssd')}</Text>
+          <Text style={styles.ussdBannerSubtitle}>{t('noInternetRequired')}</Text>
         </TouchableOpacity>
 
         {/* Dynamic Crop Filter Bar */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-          {cropFilters.map((crop) => {
-            const isSelected = selectedCropFilter === crop;
+          {cropFilters.map((cropObj) => {
+            const isSelected = selectedCropFilter === cropObj.key;
             return (
               <TouchableOpacity
-                key={crop}
+                key={cropObj.key}
                 style={[styles.filterChip, isSelected && styles.filterChipSelected]}
-                onPress={() => handleSelectCrop(crop)}
+                onPress={() => handleSelectCrop(cropObj.key)}
               >
                 <Text style={[styles.filterChipText, isSelected && styles.filterChipTextSelected]}>
-                  {crop}
+                  {t(cropObj.labelKey)}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </ScrollView>
 
-        {/* Featured Upcoming Slot Card (Dynamically reflecting active slot / selected crop) */}
+        {/* Featured Upcoming Slot Card */}
         {activeBooking && (
           <View style={styles.upcomingCard}>
-            <Text style={styles.upcomingBadgeText}>Upcoming Slot</Text>
+            <Text style={styles.upcomingBadgeText}>{t('upcomingSlot')}</Text>
             <Text style={styles.upcomingTitle}>
-              {activeBooking.mandiName} — {selectedCropFilter !== 'All Crops' ? selectedCropFilter : activeBooking.crop}
+              {(activeBooking.mandiName?.includes('Azadpur') ? t('azadpurMandi') : activeBooking.mandiName?.includes('Ghazipur') ? t('ghazipurMandi') : activeBooking.mandiName)} — {selectedCropFilter !== 'All Crops' ? (t(selectedCropFilter.toLowerCase()) || selectedCropFilter) : (t(activeBooking.crop.toLowerCase()) || activeBooking.crop)}
             </Text>
 
             <View style={styles.upcomingMetaRow}>
               <View style={styles.metaItem}>
                 <CalendarIcon size={16} color={Colors.textSecondary} />
-                <Text style={styles.metaText}>{activeBooking.date} · {activeBooking.timeSlot}</Text>
+                <Text style={styles.metaText}>{activeBooking.date ? activeBooking.date.replace('Tomorrow', t('tomorrow')).replace('Today', t('today')) : ''} · {activeBooking.timeSlot}</Text>
               </View>
             </View>
 
             <View style={styles.upcomingFooter}>
               <View style={styles.tokenTag}>
-                <Text style={styles.tokenTagText}>Token {activeBooking.tokenNumber}</Text>
+                <Text style={styles.tokenTagText}>{t('token')} {activeBooking.tokenNumber}</Text>
               </View>
 
               <TouchableOpacity
@@ -212,17 +294,17 @@ export const HomeScreen = ({ onNavigate }) => {
                 onPress={() => onNavigate('GatePass')}
                 activeOpacity={0.85}
               >
-                <Text style={styles.gatePassBtnText}>View Gate Pass</Text>
+                <Text style={styles.gatePassBtnText}>{t('viewGatePass')}</Text>
               </TouchableOpacity>
             </View>
           </View>
         )}
 
-        {/* Recommended Mandis Section with DYNAMIC Crop Pricing */}
+        {/* Recommended Mandis Section */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>Recommended Mandis for You</Text>
+          <Text style={styles.sectionTitle}>{t('recommendedMandis')}</Text>
           <TouchableOpacity onPress={() => onNavigate('FindMandi', { crop: selectedCropFilter })}>
-            <Text style={styles.seeAllText}>See all</Text>
+            <Text style={styles.seeAllText}>{t('seeAll')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -230,6 +312,12 @@ export const HomeScreen = ({ onNavigate }) => {
           {mandis.map((mandi) => {
             const cropKey = selectedCropFilter === 'All Crops' ? 'Wheat' : selectedCropFilter;
             const dynamicPrice = mandi.cropPrices?.[cropKey] || mandi.currentPricePerQuintal;
+
+            const translatedMandiName = 
+              mandi.name?.includes('Azadpur') ? t('azadpurMandi') :
+              mandi.name?.includes('Ghazipur') ? t('ghazipurMandi') :
+              mandi.name?.includes('Najafgarh') ? t('najafgarhMandi') :
+              mandi.name?.includes('Narela') ? t('narelaMandi') : mandi.name;
 
             return (
               <TouchableOpacity
@@ -239,13 +327,13 @@ export const HomeScreen = ({ onNavigate }) => {
                 activeOpacity={0.85}
               >
                 <View style={styles.mandiCardTop}>
-                  <Text style={styles.mandiName}>{mandi.name}</Text>
+                  <Text style={styles.mandiName}>{translatedMandiName}</Text>
                   <Text style={styles.mandiDistance}>{mandi.distanceKm} km</Text>
                 </View>
 
                 <Text style={styles.mandiPrice}>
-                  {cropKey}{' '}
-                  <Text style={styles.mandiPriceBold}>₹{dynamicPrice.toLocaleString()}/quintal</Text>
+                  {t(cropKey.toLowerCase()) || cropKey}{' '}
+                  <Text style={styles.mandiPriceBold}>₹{dynamicPrice.toLocaleString()}{t('perQuintal')}</Text>
                 </Text>
 
                 <View style={styles.capacitySection}>
@@ -261,14 +349,14 @@ export const HomeScreen = ({ onNavigate }) => {
                     />
                   </View>
                   <View style={styles.capacityMeta}>
-                    <Text style={styles.capacityLabel}>Capacity</Text>
+                    <Text style={styles.capacityLabel}>{t('capacity')}</Text>
                     <Text
                       style={[
                         styles.capacityValue,
                         { color: mandi.capacityLevel === 'Busy' ? Colors.warning : Colors.primary },
                       ]}
                     >
-                      {mandi.capacityLevel}
+                      {mandi.capacityLevel === 'Busy' ? t('busy') : t('available')}
                     </Text>
                   </View>
                 </View>
@@ -276,38 +364,6 @@ export const HomeScreen = ({ onNavigate }) => {
             );
           })}
         </ScrollView>
-
-        {/* Quick Actions Grid */}
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.quickGrid}>
-          <TouchableOpacity style={styles.quickCard} onPress={() => handleQuickAction('Book a Slot')}>
-            <View style={styles.quickIconBg}>
-              <CalendarIcon size={24} color={Colors.primary} />
-            </View>
-            <Text style={styles.quickLabel}>Book a Slot</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.quickCard} onPress={() => handleQuickAction('Check Prices')}>
-            <View style={styles.quickIconBg}>
-              <TrendUpIcon size={24} color={Colors.primary} />
-            </View>
-            <Text style={styles.quickLabel}>Check Prices</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.quickCard} onPress={() => handleQuickAction('Track Queue')}>
-            <View style={styles.quickIconBg}>
-              <ClockIcon size={24} color={Colors.primary} />
-            </View>
-            <Text style={styles.quickLabel}>Track Queue</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.quickCard} onPress={() => handleQuickAction('Raise Issue')}>
-            <View style={styles.quickIconBg}>
-              <InfoCircleIcon size={24} color={Colors.primary} />
-            </View>
-            <Text style={styles.quickLabel}>Raise Issue</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
 
       {/* Bottom Navigation */}
@@ -315,10 +371,10 @@ export const HomeScreen = ({ onNavigate }) => {
         currentTab={activeTab}
         onSelectTab={(tab) => {
           setActiveTab(tab);
-          if (tab === 'Queue') onNavigate('LiveQueue');
+          if (tab === 'Home') onNavigate('Home');
+          else if (tab === 'Queue') onNavigate('LiveQueue');
           else if (tab === 'Payments') onNavigate('Payments');
-          else if (tab === 'Grievance') onNavigate('Grievance');
-          else if (tab === 'Profile') onNavigate('Profile');
+          else if (tab === 'More') onNavigate('MoreServices');
         }}
       />
     </View>
@@ -344,20 +400,7 @@ const styles = StyleSheet.create({
   userSection: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  avatarText: {
-    color: '#FFFFFF',
-    fontWeight: '800',
-    fontSize: 16,
+    flex: 1,
   },
   greeting: {
     fontSize: 16,
@@ -370,15 +413,37 @@ const styles = StyleSheet.create({
   },
   headerIcons: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: Colors.inputBg,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginRight: 8,
+  },
+  langPillButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E6F7EF',
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  langPillText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.primary,
+    marginLeft: 5,
+    marginRight: 4,
+  },
+  langPillArrow: {
+    fontSize: 10,
+    color: Colors.primary,
   },
   filterScroll: {
     marginBottom: 20,
@@ -391,7 +456,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.inputBg,
   },
   filterChipSelected: {
-    backgroundColor: Colors.textPrimary,
+    backgroundColor: Colors.primary,
   },
   filterChipText: {
     fontSize: 14,
@@ -547,36 +612,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '800',
   },
-  quickGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: 14,
-    marginBottom: 10,
-  },
-  quickCard: {
-    width: '48%',
-    backgroundColor: Colors.cardBgSecondary,
-    borderRadius: 18,
-    padding: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 14,
-  },
-  quickIconBg: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  quickLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -735,5 +771,69 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '800',
+  },
+
+  /* Language Dropdown Modal Overlay & Styles */
+  dropdownModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-start',
+    paddingTop: 80,
+    paddingHorizontal: 20,
+    alignItems: 'flex-end',
+  },
+  langDropdownCard: {
+    width: 240,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+  },
+  langDropdownHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingBottom: 8,
+    marginBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  langDropdownTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+  },
+  langOptionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  langOptionItemActive: {
+    backgroundColor: '#E6F7EF',
+  },
+  langOptionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+  langOptionTextActive: {
+    fontWeight: '800',
+    color: Colors.primary,
+  },
+  checkmarkText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.primary,
   },
 });

@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon } from '../../components/common/SvgIcons';
+import { ArrowLeftIcon, ArrowRightIcon } from '../../components/common/SvgIcons';
 import { useApp } from '../../context/AppContext';
 
 export const RegistrationStep1Screen = ({ onNext, onBack }) => {
-  const { user, updateUser } = useApp();
+  const { user, updateUser, t } = useApp();
   const [name, setName] = useState(user.name || '');
   const [village, setVillage] = useState(user.village || '');
   const [state, setState] = useState(user.state || '');
   const [pincode, setPincode] = useState(user.pincode || '');
-  const [dob, setDob] = useState(user.dob || '');
-  const [preferredMandi, setPreferredMandi] = useState(user.preferredMandi || '');
 
   const handleNext = () => {
     updateUser({
@@ -19,8 +17,6 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
       village: village || 'Khera, Delhi',
       state: state || 'Delhi',
       pincode: pincode || '110033',
-      dob: dob || '15/08/1984',
-      preferredMandi: preferredMandi || 'Ghazipur Mandi',
     });
     onNext();
   };
@@ -31,7 +27,7 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
         <TouchableOpacity onPress={onBack}>
           <ArrowLeftIcon size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Registration</Text>
+        <Text style={styles.headerTitle}>{t('registrationTitle')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -41,7 +37,7 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
           <View style={[styles.stepCircle, styles.stepCircleActive]}>
             <Text style={styles.stepCircleActiveText}>1</Text>
           </View>
-          <Text style={[styles.stepLabel, styles.stepLabelActive]}>Personal</Text>
+          <Text style={[styles.stepLabel, styles.stepLabelActive]}>{t('personal')}</Text>
         </View>
 
         <View style={styles.stepLine} />
@@ -50,42 +46,42 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
           <View style={styles.stepCircle}>
             <Text style={styles.stepCircleText}>2</Text>
           </View>
-          <Text style={styles.stepLabel}>Verify</Text>
+          <Text style={styles.stepLabel}>{t('verify')}</Text>
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Tell us about yourself</Text>
+      <Text style={styles.sectionTitle}>{t('tellUsAboutYourself')}</Text>
 
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Full Name</Text>
+        <Text style={styles.fieldLabel}>{t('fullNameLabel')}</Text>
         <TextInput
           style={styles.input}
           value={name}
           onChangeText={setName}
-          placeholder="e.g. Ramesh Kumar"
+          placeholder={t('fullNamePlaceholder')}
           placeholderTextColor={Colors.textMuted}
         />
       </View>
 
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Village / District</Text>
+        <Text style={styles.fieldLabel}>{t('villageDistrictLabel')}</Text>
         <TextInput
           style={styles.input}
           value={village}
           onChangeText={setVillage}
-          placeholder="e.g. Khera, Delhi"
+          placeholder={t('villagePlaceholder')}
           placeholderTextColor={Colors.textMuted}
         />
       </View>
 
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>State</Text>
+        <Text style={styles.fieldLabel}>{t('stateLabel')}</Text>
         <View style={styles.selectInput}>
           <TextInput
             style={styles.inputText}
             value={state}
             onChangeText={setState}
-            placeholder="Select State (e.g. Delhi)"
+            placeholder={t('selectStatePlaceholder')}
             placeholderTextColor={Colors.textMuted}
           />
           <Text style={styles.dropdownArrow}>∨</Text>
@@ -93,45 +89,20 @@ export const RegistrationStep1Screen = ({ onNext, onBack }) => {
       </View>
 
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Pincode</Text>
+        <Text style={styles.fieldLabel}>{t('pincodeLabel')}</Text>
         <TextInput
           style={styles.input}
           value={pincode}
           onChangeText={setPincode}
           keyboardType="number-pad"
           maxLength={6}
-          placeholder="e.g. 110033"
+          placeholder={t('pincodePlaceholder')}
           placeholderTextColor={Colors.textMuted}
         />
-      </View>
-
-      <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Nearest / Preferred Mandi</Text>
-        <TextInput
-          style={styles.input}
-          value={preferredMandi}
-          onChangeText={setPreferredMandi}
-          placeholder="e.g. Ghazipur Mandi, Azadpur Mandi"
-          placeholderTextColor={Colors.textMuted}
-        />
-      </View>
-
-      <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Date of Birth</Text>
-        <View style={styles.dateInputWrapper}>
-          <TextInput
-            style={styles.inputFlex}
-            value={dob}
-            onChangeText={setDob}
-            placeholder="DD / MM / YYYY"
-            placeholderTextColor={Colors.textMuted}
-          />
-          <CalendarIcon size={20} color={Colors.primary} />
-        </View>
       </View>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext} activeOpacity={0.85}>
-        <Text style={styles.nextButtonText}>Next: Verification</Text>
+        <Text style={styles.nextButtonText}>{t('nextVerificationBtn')}</Text>
         <ArrowRightIcon size={20} color="#FFFFFF" />
       </TouchableOpacity>
     </ScrollView>
@@ -248,20 +219,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textMuted,
     fontWeight: '800',
-  },
-  dateInputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.inputBg,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-  },
-  inputFlex: {
-    flex: 1,
-    paddingVertical: 14,
-    fontSize: 15,
-    fontWeight: '600',
-    color: Colors.textPrimary,
   },
   nextButton: {
     backgroundColor: Colors.primary,

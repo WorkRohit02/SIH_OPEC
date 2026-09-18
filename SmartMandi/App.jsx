@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StatusBar, StyleSheet, View, BackHandler } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider, useApp } from './src/context/AppContext';
 import { Colors } from './src/theme/colors';
@@ -27,6 +27,9 @@ import { PaymentsScreen } from './src/screens/payments/PaymentsScreen';
 import { ProfileScreen } from './src/screens/profile/ProfileScreen';
 import { SettingsScreen } from './src/screens/settings/SettingsScreen';
 import { GrievanceScreen } from './src/screens/grievance/GrievanceScreen';
+import { MoreServicesScreen } from './src/screens/more/MoreServicesScreen';
+import { CropStatusScreen } from './src/screens/crop/CropStatusScreen';
+import { AuctionScreen } from './src/screens/auction/AuctionScreen';
 import { AIChatbotFloatingButton } from './src/components/chat/AIChatbotFloatingButton';
 
 const AUTH_REGISTRATION_SCREENS = [
@@ -40,24 +43,74 @@ const AUTH_REGISTRATION_SCREENS = [
 
 function AppContent() {
   const [currentScreen, setCurrentScreen] = useState('LanguageSelect');
+  const [screenStack, setScreenStack] = useState(['LanguageSelect']);
   const [screenParams, setScreenParams] = useState({});
   const [mobileNumber, setMobileNumber] = useState('');
   const { mandis, activeBooking } = useApp();
 
   const navigate = (screen, params) => {
+    const targetScreen = screen === 'Queue' ? 'LiveQueue' : screen;
     if (params) setScreenParams(params);
-    setCurrentScreen(screen);
+    if (targetScreen === 'Home') {
+      setScreenStack(['Home']);
+    } else {
+      setScreenStack((prev) => {
+        if (prev[prev.length - 1] !== targetScreen) {
+          return [...prev, targetScreen];
+        }
+        return prev;
+      });
+    }
+    setCurrentScreen(targetScreen);
   };
+
+  const goBack = () => {
+    if (screenStack.length > 1) {
+      const newStack = [...screenStack];
+      newStack.pop();
+      const prevScreen = newStack[newStack.length - 1];
+      setScreenStack(newStack);
+      setCurrentScreen(prevScreen);
+    } else {
+      navigate('Home');
+    }
+  };
+
+  useEffect(() => {
+    const handleBackPress = () => {
+      // If we are on Home page or entry screen, allow natural exit app action
+      if (currentScreen === 'Home' || currentScreen === 'LanguageSelect') {
+        return false;
+      }
+      if (screenStack.length > 1) {
+        goBack();
+        return true; // handled hardware back press, prevents app exit!
+      }
+      if (currentScreen !== 'Home') {
+        navigate('Home');
+        return true;
+      }
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    return () => subscription.remove();
+  }, [currentScreen, screenStack]);
 
   const renderScreen = () => {
     switch (currentScreen) {
       case 'LanguageSelect':
-        return <LanguageSelectScreen onNext={() => navigate('MobileLogin')} />;
+        return (
+          <LanguageSelectScreen 
+            onNext={() => navigate('MobileLogin')} 
+            onSkipToHome={() => navigate('Home')} 
+          />
+        );
 
       case 'MobileLogin':
         return (
           <MobileLoginScreen
-            onBack={() => navigate('LanguageSelect')}
+            onBack={goBack}
             onSendOtp={(num) => {
               setMobileNumber(num);
               navigate('OtpVerification');
@@ -70,7 +123,7 @@ function AppContent() {
         return (
           <OtpVerificationScreen
             mobileNumber={mobileNumber}
-            onBack={() => navigate('MobileLogin')}
+            onBack={goBack}
             onVerify={() => navigate('RegistrationStep1')}
           />
         );
@@ -79,7 +132,7 @@ function AppContent() {
         return (
           <RegistrationStep1Screen
             onNext={() => navigate('RegistrationStep3')}
-            onBack={() => navigate('MobileLogin')}
+            onBack={goBack}
           />
         );
 
@@ -87,7 +140,7 @@ function AppContent() {
         return (
           <RegistrationStep3Screen
             onSubmit={() => navigate('RegistrationSuccess')}
-            onBack={() => navigate('RegistrationStep1')}
+            onBack={goBack}
           />
         );
 
@@ -102,11 +155,30 @@ function AppContent() {
       case 'Home':
         return <HomeScreen onNavigate={(screen, params) => navigate(screen, params)} />;
 
+      case 'MoreServices':
+        return <MoreServicesScreen onNavigate={(screen, params) => navigate(screen, params)} />;
+
+      case 'CropStatus':
+        return (
+          <CropStatusScreen
+            onBack={goBack}
+            onNavigate={(screen, params) => navigate(screen, params)}
+          />
+        );
+
+      case 'Auction':
+        return (
+          <AuctionScreen
+            onBack={goBack}
+            onNavigate={(screen, params) => navigate(screen, params)}
+          />
+        );
+
       case 'FindMandi':
         return (
           <FindMandiScreen
             initialCrop={screenParams.crop || 'Wheat'}
-            onBack={() => navigate('Home')}
+            onBack={goBack}
             onNavigate={(screen, params) => navigate(screen, params)}
           />
         );
@@ -114,7 +186,7 @@ function AppContent() {
       case 'MandiMap':
         return (
           <MandiMapScreen
-            onBack={() => navigate('FindMandi')}
+            onBack={goBack}
             onNavigate={(screen, params) => navigate(screen, params)}
           />
         );
@@ -124,7 +196,7 @@ function AppContent() {
           <MandiDetailScreen
             mandi={screenParams.mandi || mandis[0]}
             crop={screenParams.crop || 'Wheat'}
-            onBack={() => navigate('Home')}
+            onBack={goBack}
             onBookSlot={() => navigate('BookSlot', { mandi: screenParams.mandi || mandis[0] })}
           />
         );
@@ -133,7 +205,7 @@ function AppContent() {
         return (
           <PriceTrendsScreen
             initialCrop={screenParams.crop || 'Wheat'}
-            onBack={() => navigate('Home')}
+            onBack={goBack}
             onViewComparison={() => navigate('ComparePrices')}
           />
         );
@@ -141,7 +213,7 @@ function AppContent() {
       case 'ComparePrices':
         return (
           <ComparePricesScreen
-            onBack={() => navigate('PriceTrends')}
+            onBack={goBack}
             onViewTrends={() => navigate('PriceTrends')}
           />
         );
@@ -150,7 +222,7 @@ function AppContent() {
         return (
           <BookSlotScreen
             mandiName={screenParams.mandi?.name || 'Azadpur Mandi'}
-            onBack={() => navigate('Home')}
+            onBack={goBack}
             onConfirm={(booking) => navigate('BookingConfirmed', { booking })}
           />
         );
@@ -165,20 +237,22 @@ function AppContent() {
         );
 
       case 'GatePass':
-        return <GatePassScreen onBack={() => navigate('Home')} />;
+        return <GatePassScreen onBack={goBack} />;
 
+      case 'Queue':
       case 'LiveQueue':
         return (
           <LiveQueueScreen
-            onBack={() => navigate('Home')}
+            onBack={goBack}
             onReschedule={() => navigate('ManageBooking')}
+            onNavigate={(screen) => navigate(screen)}
           />
         );
 
       case 'ManageBooking':
         return (
           <ManageBookingScreen
-            onBack={() => navigate('LiveQueue')}
+            onBack={goBack}
             onConfirmReschedule={() => navigate('LiveQueue')}
           />
         );
@@ -186,7 +260,7 @@ function AppContent() {
       case 'SaleRecord':
         return (
           <SaleRecordScreen
-            onBack={() => navigate('Payments')}
+            onBack={goBack}
             onViewPayments={() => navigate('Payments')}
           />
         );
@@ -197,7 +271,7 @@ function AppContent() {
       case 'Grievance':
         return (
           <GrievanceScreen
-            onBack={() => navigate('Home')}
+            onBack={goBack}
             onNavigate={(screen) => navigate(screen)}
           />
         );
@@ -211,7 +285,7 @@ function AppContent() {
         );
 
       case 'Settings':
-        return <SettingsScreen onBack={() => navigate('Profile')} />;
+        return <SettingsScreen onBack={goBack} onNavigate={(screen) => navigate(screen)} />;
 
       default:
         return <HomeScreen onNavigate={(screen, params) => navigate(screen, params)} />;
@@ -245,3 +319,4 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
 });
+

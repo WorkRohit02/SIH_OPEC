@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { BottomNav } from '../../components/common/BottomNav';
 
 export const PaymentsScreen = ({ onNavigate }) => {
-  const { payments, activeTab, setActiveTab } = useApp();
+  const { payments, setActiveTab, t } = useApp();
   const [filter, setFilter] = useState('All');
 
   const filteredPayments = payments.filter((p) => {
@@ -14,38 +14,44 @@ export const PaymentsScreen = ({ onNavigate }) => {
     return true;
   });
 
+  const filterTabs = [
+    { key: 'All', label: t('all') },
+    { key: 'Pending', label: t('pending') },
+    { key: 'Received', label: t('received') },
+  ];
+
   return (
     <View style={styles.outerContainer}>
       <ScrollView contentContainerStyle={styles.container} bounces={false}>
-        <Text style={styles.screenTitle}>Payments</Text>
+        <Text style={styles.screenTitle}>{t('payments')}</Text>
 
         {/* Metrics Cards Row */}
         <View style={styles.metricsRow}>
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>Pending</Text>
+            <Text style={styles.metricLabel}>{t('pending')}</Text>
             <Text style={styles.metricVal}>₹12,400</Text>
-            <Text style={styles.metricSub}>2 transactions</Text>
+            <Text style={styles.metricSub}>2 {t('transactions')}</Text>
           </View>
 
           <View style={styles.metricCard}>
-            <Text style={styles.metricLabel}>Received</Text>
+            <Text style={styles.metricLabel}>{t('received')}</Text>
             <Text style={[styles.metricVal, { color: Colors.primary }]}>₹1,84,200</Text>
-            <Text style={styles.metricSub}>18 transactions</Text>
+            <Text style={styles.metricSub}>18 {t('transactions')}</Text>
           </View>
         </View>
 
         {/* Filter Pills */}
         <View style={styles.filterBar}>
-          {['All', 'Pending', 'Received'].map((tab) => {
-            const isSelected = filter === tab;
+          {filterTabs.map((tab) => {
+            const isSelected = filter === tab.key;
             return (
               <TouchableOpacity
-                key={tab}
+                key={tab.key}
                 style={[styles.filterTab, isSelected && styles.filterTabActive]}
-                onPress={() => setFilter(tab)}
+                onPress={() => setFilter(tab.key)}
               >
                 <Text style={[styles.filterTabText, isSelected && styles.filterTabTextActive]}>
-                  {tab}
+                  {tab.label}
                 </Text>
               </TouchableOpacity>
             );
@@ -53,62 +59,70 @@ export const PaymentsScreen = ({ onNavigate }) => {
         </View>
 
         {/* Transaction Cards List */}
-        {filteredPayments.map((tx) => (
-          <TouchableOpacity
-            key={tx.id}
-            style={styles.txCard}
-            onPress={() => onNavigate('SaleRecord')}
-            activeOpacity={0.85}
-          >
-            <View style={styles.txHeader}>
-              <View style={styles.txIconBg}>
-                <Text style={styles.txIconText}>🌾</Text>
+        {filteredPayments.map((tx) => {
+          const mandiTrans = 
+            tx.mandiName?.includes('Azadpur') ? t('azadpurMandi') :
+            tx.mandiName?.includes('Ghazipur') ? t('ghazipurMandi') :
+            tx.mandiName?.includes('Najafgarh') ? t('najafgarhMandi') :
+            tx.mandiName?.includes('Narela') ? t('narelaMandi') : tx.mandiName;
+
+          return (
+            <TouchableOpacity
+              key={tx.id}
+              style={styles.txCard}
+              onPress={() => onNavigate('SaleRecord')}
+              activeOpacity={0.85}
+            >
+              <View style={styles.txHeader}>
+                <View style={styles.txIconBg}>
+                  <Text style={styles.txIconText}>🌾</Text>
+                </View>
+
+                <View style={styles.txMeta}>
+                  <Text style={styles.txTitle}>{mandiTrans}</Text>
+                  <Text style={styles.txDate}>{tx.date}</Text>
+                </View>
+
+                <Text style={styles.chevron}>›</Text>
               </View>
 
-              <View style={styles.txMeta}>
-                <Text style={styles.txTitle}>{tx.mandiName}</Text>
-                <Text style={styles.txDate}>{tx.date}</Text>
-              </View>
+              <View style={styles.txFooter}>
+                <Text style={styles.txDetailText}>
+                  {tx.quantityQuintals} {t('quintals')} - ₹{tx.ratePerQuintal}{t('perQuintal')}
+                </Text>
 
-              <Text style={styles.chevron}>›</Text>
-            </View>
-
-            <View style={styles.txFooter}>
-              <Text style={styles.txDetailText}>
-                {tx.quantityQuintals} quintals - ₹{tx.ratePerQuintal}/quintal
-              </Text>
-
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.txAmount}>₹{tx.amount.toLocaleString()}</Text>
-                <View
-                  style={[
-                    styles.statusPill,
-                    { backgroundColor: tx.status === 'Received' ? Colors.primaryLight : Colors.warningBg },
-                  ]}
-                >
-                  <Text
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={styles.txAmount}>₹{tx.amount.toLocaleString()}</Text>
+                  <View
                     style={[
-                      styles.statusPillText,
-                      { color: tx.status === 'Received' ? Colors.primary : Colors.warning },
+                      styles.statusPill,
+                      { backgroundColor: tx.status === 'Received' ? Colors.primaryLight : Colors.warningBg },
                     ]}
                   >
-                    {tx.status}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.statusPillText,
+                        { color: tx.status === 'Received' ? Colors.primary : Colors.warning },
+                      ]}
+                    >
+                      {tx.status === 'Received' ? t('received') : t('pending')}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
 
       <BottomNav
-        currentTab={activeTab}
+        currentTab="Payments"
         onSelectTab={(tab) => {
           setActiveTab(tab);
           if (tab === 'Home') onNavigate('Home');
           else if (tab === 'Queue') onNavigate('LiveQueue');
-          else if (tab === 'Grievance') onNavigate('Grievance');
-          else if (tab === 'Profile') onNavigate('Profile');
+          else if (tab === 'Payments') onNavigate('Payments');
+          else if (tab === 'More') onNavigate('MoreServices');
         }}
       />
     </View>

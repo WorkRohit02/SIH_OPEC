@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { ArrowLeftIcon } from '../../components/common/SvgIcons';
+import { useApp } from '../../context/AppContext';
 
 export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
+  const { t } = useApp();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(28);
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -25,7 +27,6 @@ export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
   }, []);
 
   const handleDigitChange = (text, index) => {
-    // Handle multi-character paste (e.g. pasting "123456")
     if (text.length > 1) {
       const digits = text.replace(/[^0-9]/g, '').slice(0, 6).split('');
       const newOtp = [...otp];
@@ -42,7 +43,6 @@ export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
     newOtp[index] = text;
     setOtp(newOtp);
 
-    // Auto-advance to next box if character was entered
     if (text && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -63,11 +63,11 @@ export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
           <ArrowLeftIcon size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
 
-        <Text style={styles.title}>Verify your number</Text>
+        <Text style={styles.title}>{t('verifyNumberTitle')}</Text>
         <Text style={styles.subtitle}>
-          Enter the 6-digit code sent to +91 {mobileNumber || '98765 43210'}{' '}
+          {t('enter6DigitCode')} +91 {mobileNumber || '98765 43210'}{' '}
           <Text style={styles.editLink} onPress={onBack}>
-            Edit
+            {t('editText')}
           </Text>
         </Text>
 
@@ -101,14 +101,14 @@ export const OtpVerificationScreen = ({ mobileNumber, onBack, onVerify }) => {
         </View>
 
         <Text style={styles.timerText}>
-          Resend code in<Text style={styles.timerBold}> 00:{timer < 10 ? `0${timer}` : timer}</Text>
+          {t('resendCodeIn')}<Text style={styles.timerBold}> 00:{timer < 10 ? `0${timer}` : timer}</Text>
         </Text>
 
         <TouchableOpacity style={styles.verifyButton} onPress={onVerify} activeOpacity={0.85}>
-          <Text style={styles.verifyButtonText}>Verify & Continue</Text>
+          <Text style={styles.verifyButtonText}>{t('verifyAndContinue')}</Text>
         </TouchableOpacity>
 
-        <Text style={styles.smsNote}>Didn't receive the code? Check your SMS inbox.</Text>
+        <Text style={styles.smsNote}>{t('didntReceiveSms')}</Text>
       </View>
     </ScrollView>
   );

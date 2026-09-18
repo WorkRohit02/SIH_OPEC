@@ -4,87 +4,105 @@ import { Colors } from '../../theme/colors';
 import { ArrowLeftIcon } from '../../components/common/SvgIcons';
 import { useApp } from '../../context/AppContext';
 import { queueActivities } from '../../data/mockData';
+import { BottomNav } from '../../components/common/BottomNav';
 
-export const LiveQueueScreen = ({ onBack, onReschedule }) => {
-  const { activeBooking } = useApp();
+export const LiveQueueScreen = ({ onBack, onReschedule, onNavigate }) => {
+  const { activeBooking, setActiveTab, t } = useApp();
 
   const token = activeBooking?.tokenNumber || '#042';
 
   return (
-    <ScrollView contentContainerStyle={styles.container} bounces={false}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity onPress={onBack}>
-          <ArrowLeftIcon size={24} color={Colors.textPrimary} />
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <ScrollView contentContainerStyle={styles.container} bounces={false}>
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={onBack}>
+            <ArrowLeftIcon size={24} color={Colors.textPrimary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{t('trackQueue')}</Text>
+          <View style={styles.liveBadge}>
+            <Text style={styles.liveBadgeDot}>● </Text>
+            <Text style={styles.liveBadgeText}>{t('live')}</Text>
+          </View>
+        </View>
+
+        {/* Main Queue Card */}
+        <View style={styles.queueCard}>
+          <Text style={styles.tokenLabel}>{t('yourToken').toUpperCase()}</Text>
+          <Text style={styles.tokenNumber}>{token}</Text>
+
+          <View style={styles.positionRow}>
+            <Text style={styles.positionLabel}>{t('positionInQueue').toUpperCase()}</Text>
+            <Text style={styles.positionPercent}>15%</Text>
+          </View>
+
+          <Text style={styles.positionVal}>{t('sixthOf40')}</Text>
+
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: '15%' }]} />
+          </View>
+
+          <View style={styles.waitRow}>
+            <View>
+              <Text style={styles.waitLabel}>{t('estimatedWait').toUpperCase()}</Text>
+              <Text style={styles.waitVal}>~35 min</Text>
+            </View>
+
+            <View style={styles.updatingBadge}>
+              <Text style={styles.updatingDot}>● </Text>
+              <Text style={styles.updatingText}>{t('updatingLive')}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Queue Timeline */}
+        <Text style={styles.sectionTitle}>{t('queueTimeline')}</Text>
+        <View style={styles.timelineCard}>
+          {queueActivities.map((act, idx) => (
+            <View key={act.id} style={[styles.timelineItem, idx === queueActivities.length - 1 && styles.noBorder]}>
+              <View style={[styles.timelineIconCircle, act.status === 'called' ? styles.circleGreen : styles.circleCheck]}>
+                <Text style={styles.circleText}>{act.status === 'called' ? '→' : '✓'}</Text>
+              </View>
+
+              <View style={styles.timelineContent}>
+                <Text style={styles.timelineTitle}>
+                  {t('token')} {act.tokenNumber} {act.status === 'called' ? t('called') : t('arrived')}
+                </Text>
+                <Text style={styles.timelineTime}>{act.timeAgo}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Mandi Gate Info */}
+        <View style={styles.mandiGateCard}>
+          <Text style={styles.mandiGateText}>
+            {t('azadpurMandi')} · 45% {t('capacity')} · {t('gate2Open')}
+          </Text>
+        </View>
+
+        {/* Actions */}
+        <TouchableOpacity style={styles.rescheduleBtn} onPress={onReschedule}>
+          <Text style={styles.rescheduleText}>{t('cancelRescheduleSlot')}</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Live Queue</Text>
-        <View style={styles.liveBadge}>
-          <Text style={styles.liveBadgeDot}>● </Text>
-          <Text style={styles.liveBadgeText}>Live</Text>
-        </View>
-      </View>
 
-      {/* Main Queue Card */}
-      <View style={styles.queueCard}>
-        <Text style={styles.tokenLabel}>YOUR TOKEN</Text>
-        <Text style={styles.tokenNumber}>{token}</Text>
+        <TouchableOpacity style={styles.notifiedBtn}>
+          <Text style={styles.notifiedText}>{t('getNotifiedWhenCalled')}</Text>
+        </TouchableOpacity>
+      </ScrollView>
 
-        <View style={styles.positionRow}>
-          <Text style={styles.positionLabel}>POSITION IN QUEUE</Text>
-          <Text style={styles.positionPercent}>15%</Text>
-        </View>
-
-        <Text style={styles.positionVal}>6th of 40</Text>
-
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: '15%' }]} />
-        </View>
-
-        <View style={styles.waitRow}>
-          <View>
-            <Text style={styles.waitLabel}>ESTIMATED WAIT</Text>
-            <Text style={styles.waitVal}>~35 min</Text>
-          </View>
-
-          <View style={styles.updatingBadge}>
-            <Text style={styles.updatingDot}>● </Text>
-            <Text style={styles.updatingText}>Updating live</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Queue Timeline */}
-      <Text style={styles.sectionTitle}>Queue Timeline</Text>
-      <View style={styles.timelineCard}>
-        {queueActivities.map((act, idx) => (
-          <View key={act.id} style={[styles.timelineItem, idx === queueActivities.length - 1 && styles.noBorder]}>
-            <View style={[styles.timelineIconCircle, act.status === 'called' ? styles.circleGreen : styles.circleCheck]}>
-              <Text style={styles.circleText}>{act.status === 'called' ? '→' : '✓'}</Text>
-            </View>
-
-            <View style={styles.timelineContent}>
-              <Text style={styles.timelineTitle}>
-                Token {act.tokenNumber} {act.status}
-              </Text>
-              <Text style={styles.timelineTime}>{act.timeAgo}</Text>
-            </View>
-          </View>
-        ))}
-      </View>
-
-      {/* Mandi Gate Info */}
-      <View style={styles.mandiGateCard}>
-        <Text style={styles.mandiGateText}>Azadpur Mandi · 45% capacity · Gate 2 open</Text>
-      </View>
-
-      {/* Actions */}
-      <TouchableOpacity style={styles.rescheduleBtn} onPress={onReschedule}>
-        <Text style={styles.rescheduleText}>Cancel / Reschedule Slot</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.notifiedBtn}>
-        <Text style={styles.notifiedText}>Get Notified When Called</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      {onNavigate && (
+        <BottomNav
+          currentTab="Queue"
+          onSelectTab={(tab) => {
+            setActiveTab(tab);
+            if (tab === 'Home') onNavigate('Home');
+            else if (tab === 'Queue') onNavigate('LiveQueue');
+            else if (tab === 'Payments') onNavigate('Payments');
+            else if (tab === 'More') onNavigate('MoreServices');
+          }}
+        />
+      )}
+    </View>
   );
 };
 

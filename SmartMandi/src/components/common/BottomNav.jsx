@@ -2,13 +2,16 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from '../../theme/colors';
 
+import { useApp } from '../../context/AppContext';
+
 export const BottomNav = ({ currentTab, onSelectTab }) => {
+  const { t } = useApp();
+
   const tabs = [
-    { key: 'Home', label: 'Home', icon: '🏠' },
-    { key: 'Queue', label: 'Queue', icon: '🕒' },
-    { key: 'Payments', label: 'Payments', icon: '💳' },
-    { key: 'Grievance', label: 'Grievance', icon: 'ℹ️' },
-    { key: 'Profile', label: 'Profile', icon: '👤' },
+    { key: 'Home', labelKey: 'home', icon: '🏠' },
+    { key: 'Queue', labelKey: 'queue', icon: '🕒' },
+    { key: 'Payments', labelKey: 'payments', icon: '💳' },
+    { key: 'More', labelKey: 'more', icon: '☰' },
   ];
 
   return (
@@ -25,7 +28,7 @@ export const BottomNav = ({ currentTab, onSelectTab }) => {
             <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
               <Text style={[styles.iconText, isActive && styles.activeIconText]}>{tab.icon}</Text>
             </View>
-            <Text style={[styles.tabLabel, isActive && styles.activeTabLabel]}>{tab.label}</Text>
+            <Text style={[styles.tabLabel, isActive && styles.activeTabLabel]}>{t(tab.labelKey)}</Text>
           </TouchableOpacity>
         );
       })}

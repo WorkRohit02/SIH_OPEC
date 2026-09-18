@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,29 +15,39 @@ import { Colors } from '../../theme/colors';
 import { useApp } from '../../context/AppContext';
 
 export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
-  const { user, mandis, selectedCrop } = useApp();
+  const { user, mandis, selectedCrop, t } = useApp();
   const scrollViewRef = useRef(null);
 
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+
+  const getWelcomeText = () =>
+    `${t('welcome')}, ${user?.name || 'Kisan Ji'}! 🙏 ${t('opecSubtitle')}\nHow can I help you today with crop prices, slot booking, live queues, or mandi info?`;
+
   const [messages, setMessages] = useState([
     {
       id: '1',
       sender: 'ai',
-      text: `Namaste ${user?.name || 'Kisan Ji'}! 🙏 I am your OPEC AI Assistant.\nHow can I help you today with prices, slot booking, or mandi queues?`,
+      text: getWelcomeText(),
       time: 'Just now',
     },
   ]);
 
+  useEffect(() => {
+    setMessages((prev) =>
+      prev.map((msg) => (msg.id === '1' ? { ...msg, text: getWelcomeText() } : msg))
+    );
+  }, [t]);
+
   const quickQuestions = [
-    '🌾 Wheat price today?',
-    '🚜 How to book a slot?',
-    '🕒 Live queue status',
-    '📍 Nearest Mandi details',
-    '❓ File a grievance',
+    { id: 'price', text: t('wheatPriceQuestion') || '🌾 Wheat price today?' },
+    { id: 'book', text: t('howToBookQuestion') || '🚜 How to book a slot?' },
+    { id: 'queue', text: t('liveQueueQuestion') || '🕒 Live queue status' },
+    { id: 'mandi', text: t('nearestMandiQuestion') || '📍 Nearest Mandi details' },
+    { id: 'grievance', text: t('fileGrievanceQuestion') || '❓ File a grievance' },
   ];
 
-  const handleSend = (textToSend) => {
+  const handleSend = (textToSend, explicitIntent) => {
     const query = textToSend || inputMessage;
     if (!query.trim()) return;
 
@@ -53,7 +63,7 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
     setIsTyping(true);
 
     setTimeout(() => {
-      let aiReply = generateAIResponse(query);
+      let aiReply = generateAIResponse(query, explicitIntent);
       const aiMsg = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
@@ -67,44 +77,120 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
-    }, 900);
+    }, 800);
   };
 
-  const generateAIResponse = (query) => {
+  const generateAIResponse = (query, explicitIntent) => {
     const q = query.toLowerCase();
 
-    if (q.includes('price') || q.includes('wheat') || q.includes('rate')) {
+    // 1. Price Query / Intent
+    if (
+      explicitIntent === 'price' ||
+      q.includes('price') ||
+      q.includes('rate') ||
+      q.includes('wheat') ||
+      q.includes('crop') ||
+      q.includes('दाम') ||
+      q.includes('मूल्य') ||
+      q.includes('भाव') ||
+      q.includes('ਕੀਮਤ') ||
+      q.includes('दर') ||
+      q.includes('ధర') ||
+      q.includes('விலை')
+    ) {
       const mandi = mandis[0] || { name: 'Azadpur Mandi', currentPricePerQuintal: 2280 };
       const price = mandi.cropPrices?.[selectedCrop || 'Wheat'] || mandi.currentPricePerQuintal;
+      const cropTrans = t((selectedCrop || 'Wheat').toLowerCase()) || (selectedCrop || 'Wheat');
+      const mandiTrans = mandi.name?.includes('Azadpur') ? t('azadpurMandi') : mandi.name;
+
       return {
-        text: `📊 **Today's Market Trend for ${selectedCrop || 'Wheat'}**:\n\n• **${mandi.name}**: ₹${price}/quintal (High Demand 📈)\n• **Najafgarh Mandi**: ₹${price - 30}/quintal\n• **Narela Mandi**: ₹${price + 20}/quintal\n\nPrices are forecasted to rise by 2-3% tomorrow!`,
-        action: { label: 'Compare All Mandi Prices', screen: 'PriceTrends' },
+        text: `📊 **${cropTrans} ${t('checkPrices')}**:\n\n• **${mandiTrans}**: ₹${price}${t('perQuintal')} (High Demand 📈)\n• **${t('najafgarhMandi')}**: ₹${price - 30}${t('perQuintal')}\n• **${t('narelaMandi')}**: ₹${price + 20}${t('perQuintal')}\n\nPrices are forecasted to rise by 2-3% tomorrow!`,
+        action: { label: t('compareAllPricesBtn') || 'Compare All Mandi Prices', screen: 'PriceTrends' },
       };
     }
 
-    if (q.includes('book') || q.includes('slot') || q.includes('token')) {
+    // 2. Booking Slot Query / Intent
+    if (
+      explicitIntent === 'book' ||
+      q.includes('book') ||
+      q.includes('slot') ||
+      q.includes('token') ||
+      q.includes('pass') ||
+      q.includes('बुकिंग') ||
+      q.includes('स्लॉट') ||
+      q.includes('ਬੁਕਿੰਗ') ||
+      q.includes('బుకింగ్') ||
+      q.includes('பதிவு')
+    ) {
       return {
-        text: `🚜 **Booking a Mandi Slot is quick**:\n1. Choose your preferred Mandi.\n2. Pick a convenient date & 2-hour time slot.\n3. Get your instant digital Gate Pass with Token Number!`,
-        action: { label: 'Book Slot Now', screen: 'BookSlot' },
+        text: `🚜 **${t('bookSlot')}**:\n\n1. Select your preferred Mandi & crop.\n2. Choose date & 2-hour time slot.\n3. Receive instant digital Gate Pass & Token number!`,
+        action: { label: t('bookSlotNowBtn') || 'Book Slot Now', screen: 'BookSlot' },
       };
     }
 
-    if (q.includes('queue') || q.includes('status') || q.includes('time')) {
+    // 3. Live Queue Query / Intent
+    if (
+      explicitIntent === 'queue' ||
+      q.includes('queue') ||
+      q.includes('status') ||
+      q.includes('time') ||
+      q.includes('wait') ||
+      q.includes('कतार') ||
+      q.includes('लाइन') ||
+      q.includes('रांग') ||
+      q.includes('ਕਤਾਰ') ||
+      q.includes('క్యూ') ||
+      q.includes('வரிசை')
+    ) {
       return {
-        text: `🕒 **Live Queue Status**:\nAzadpur Mandi current waiting time is ~25 mins (Token #42 active).\nYou can track your live gate queue in real time!`,
-        action: { label: 'Track Live Queue', screen: 'LiveQueue' },
+        text: `🕒 **${t('trackQueue')}**:\n\nAzadpur Mandi current wait time: ~25 mins (Token #42 ${t('inProgress')}).\nTrack live gate entry tokens in real time!`,
+        action: { label: t('trackLiveQueueBtn') || 'Track Live Queue', screen: 'LiveQueue' },
       };
     }
 
-    if (q.includes('grievance') || q.includes('issue') || q.includes('help') || q.includes('complaint')) {
+    // 4. Nearest Mandi / Details Query / Intent
+    if (
+      explicitIntent === 'mandi' ||
+      q.includes('mandi') ||
+      q.includes('near') ||
+      q.includes('location') ||
+      q.includes('find') ||
+      q.includes('मंडी') ||
+      q.includes('ਮੰਡੀ') ||
+      q.includes('మండీ') ||
+      q.includes('சந்தை')
+    ) {
       return {
-        text: `🤝 **Need Help or Have a Complaint?**\nYou can submit a grievance directly to Mandi Officers for payment delays, weighing issues, or slot rescheduling.`,
-        action: { label: 'Raise Grievance', screen: 'Grievance' },
+        text: `📍 **${t('recommendedMandis')}**:\n\n• ${t('azadpurMandi')} (4.2 km)\n• ${t('ghazipurMandi')} (8.5 km)\n• ${t('narelaMandi')} (12.0 km)`,
+        action: { label: t('findMandi') || 'Find a Mandi', screen: 'FindMandi' },
       };
     }
 
+    // 5. Grievance / Complaint Query / Intent
+    if (
+      explicitIntent === 'grievance' ||
+      q.includes('grievance') ||
+      q.includes('issue') ||
+      q.includes('help') ||
+      q.includes('complaint') ||
+      q.includes('problem') ||
+      q.includes('शिकायत') ||
+      q.includes('समस्या') ||
+      q.includes('ਸਮੱਸਿਆ') ||
+      q.includes('तक्रार') ||
+      q.includes('ఫిర్యాదు') ||
+      q.includes('புகார்')
+    ) {
+      return {
+        text: `🤝 **${t('raiseIssue')}**:\n\nSubmit a complaint directly to Mandi Officers for payment delays, weighing disputes, or slot rescheduling.`,
+        action: { label: t('raiseGrievanceBtn') || 'Raise Grievance', screen: 'Grievance' },
+      };
+    }
+
+    // Fallback response with navigation links
     return {
-      text: `🤖 SmartMandi AI is here for you!\nYou can ask me about:\n• Crop prices & trends\n• Mandi slot booking & gate passes\n• Real-time queue waiting times\n• Payment receipts & grievances`,
+      text: `🤖 OPEC AI Assistant is here for you!\n\n• Ask about crop market prices & trends\n• Book mandi arrival slots\n• Track live gate queues & gate passes`,
+      action: { label: t('bookSlotNowBtn') || 'Book Slot Now', screen: 'BookSlot' },
     };
   };
 
@@ -122,10 +208,10 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
                 <Text style={styles.aiBadgeText}>🤖 AI</Text>
               </View>
               <View>
-                <Text style={styles.headerTitle}>Kisan AI Assistant</Text>
+                <Text style={styles.headerTitle}>{t('kisanAiTitle') || 'Kisan AI Assistant'}</Text>
                 <View style={styles.statusRow}>
                   <View style={styles.onlineDot} />
-                  <Text style={styles.statusText}>SmartMandi AI • Multilingual</Text>
+                  <Text style={styles.statusText}>{t('kisanAiSub') || 'OPEC AI • Multilingual'}</Text>
                 </View>
               </View>
             </View>
@@ -141,19 +227,19 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
             style={styles.chipsScroll}
             contentContainerStyle={styles.chipsContent}
           >
-            {quickQuestions.map((q, idx) => (
+            {quickQuestions.map((q) => (
               <TouchableOpacity
-                key={idx}
+                key={q.id}
                 style={styles.chip}
-                onPress={() => handleSend(q)}
+                onPress={() => handleSend(q.text, q.id)}
                 activeOpacity={0.8}
               >
-                <Text style={styles.chipText}>{q}</Text>
+                <Text style={styles.chipText}>{q.text}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          {/* Messages */}
+          {/* Messages Container */}
           <ScrollView
             ref={scrollViewRef}
             style={styles.messagesContainer}
@@ -187,6 +273,7 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
                     {msg.text}
                   </Text>
 
+                  {/* PROMINENT REDIRECTION LINK / ACTION BUTTON */}
                   {msg.action && onNavigate && (
                     <TouchableOpacity
                       style={styles.actionBtn}
@@ -194,8 +281,9 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
                         onClose();
                         onNavigate(msg.action.screen);
                       }}
+                      activeOpacity={0.8}
                     >
-                      <Text style={styles.actionBtnText}>➡️ {msg.action.label}</Text>
+                      <Text style={styles.actionBtnText}>➔ {msg.action.label}</Text>
                     </TouchableOpacity>
                   )}
 
@@ -218,7 +306,7 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
                 </View>
                 <View style={[styles.msgBubble, styles.aiBubble, { flexDirection: 'row', alignItems: 'center' }]}>
                   <ActivityIndicator size="small" color={Colors.primary} />
-                  <Text style={[styles.msgText, styles.aiMsgText, { marginLeft: 8 }]}>Thinking...</Text>
+                  <Text style={[styles.msgText, styles.aiMsgText, { marginLeft: 8 }]}>{t('thinking') || 'Thinking...'}</Text>
                 </View>
               </View>
             )}
@@ -231,7 +319,7 @@ export const AIChatbotModal = ({ visible, onClose, onNavigate }) => {
             </TouchableOpacity>
             <TextInput
               style={styles.input}
-              placeholder="Ask Kisan AI anything in English/Hindi..."
+              placeholder={t('askKisanPlaceholder') || 'Ask OPEC AI anything...'}
               placeholderTextColor={Colors.textMuted}
               value={inputMessage}
               onChangeText={setInputMessage}
@@ -359,7 +447,7 @@ const styles = StyleSheet.create({
   msgWrapper: {
     flexDirection: 'row',
     marginBottom: 14,
-    maxWidth: '85%',
+    maxWidth: '88%',
   },
   userMsgWrapper: {
     alignSelf: 'flex-end',
@@ -379,7 +467,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   msgBubble: {
-    padding: 12,
+    padding: 14,
     borderRadius: 16,
   },
   userBubble: {
@@ -403,21 +491,26 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   actionBtn: {
-    backgroundColor: Colors.primaryLight,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    marginTop: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginTop: 10,
     alignSelf: 'flex-start',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   actionBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.primary,
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   msgTime: {
     fontSize: 10,
-    marginTop: 4,
+    marginTop: 6,
     alignSelf: 'flex-end',
   },
   userMsgTime: {

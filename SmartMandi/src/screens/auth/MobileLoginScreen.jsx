@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { ArrowLeftIcon, ArrowRightIcon } from '../../components/common/SvgIcons';
+import { useApp } from '../../context/AppContext';
 
 export const MobileLoginScreen = ({ onBack, onSendOtp, onKisanId }) => {
-  // Mobile number initially EMPTY as requested by user
+  const { t } = useApp();
   const [mobileNumber, setMobileNumber] = useState('');
 
   return (
@@ -20,8 +21,8 @@ export const MobileLoginScreen = ({ onBack, onSendOtp, onKisanId }) => {
             style={{ width: 64, height: 64, borderRadius: 32 }}
           />
         </View>
-        <Text style={styles.title}>Enter your mobile number</Text>
-        <Text style={styles.subtitle}>We'll send you an OTP to verify</Text>
+        <Text style={styles.title}>{t('enterMobileTitle')}</Text>
+        <Text style={styles.subtitle}>{t('enterMobileSubtitle')}</Text>
       </View>
 
       <View style={styles.formSection}>
@@ -31,7 +32,7 @@ export const MobileLoginScreen = ({ onBack, onSendOtp, onKisanId }) => {
           </View>
           <TextInput
             style={styles.mobileInput}
-            placeholder="Enter 10-digit number"
+            placeholder={t('enter10Digit')}
             placeholderTextColor={Colors.textMuted}
             keyboardType="phone-pad"
             maxLength={10}
@@ -39,32 +40,32 @@ export const MobileLoginScreen = ({ onBack, onSendOtp, onKisanId }) => {
             onChangeText={setMobileNumber}
           />
         </View>
-        <Text style={styles.helperText}>You will receive an SMS with a verification code.</Text>
+        <Text style={styles.helperText}>{t('smsVerificationHelper')}</Text>
 
         <TouchableOpacity
           style={[styles.sendOtpButton, !mobileNumber && styles.disabledBtn]}
           onPress={() => onSendOtp(mobileNumber || '9876543210')}
           activeOpacity={0.85}
         >
-          <Text style={styles.sendOtpText}>Send OTP</Text>
+          <Text style={styles.sendOtpText}>{t('sendOtp')}</Text>
           <ArrowRightIcon size={20} color="#FFFFFF" />
         </TouchableOpacity>
 
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>OR</Text>
+          <Text style={styles.dividerText}>{t('orText')}</Text>
           <View style={styles.dividerLine} />
         </View>
 
         <TouchableOpacity style={styles.kisanIdButton} onPress={onKisanId} activeOpacity={0.85}>
           <Text style={styles.kisanIcon}>💳</Text>
-          <Text style={styles.kisanIdText}>Continue with Kisan ID</Text>
+          <Text style={styles.kisanIdText}>{t('continueKisanId')}</Text>
         </TouchableOpacity>
       </View>
 
       <Text style={styles.legalFooter}>
-        By continuing, you agree to our <Text style={styles.legalLink}>Terms of Service</Text> and{' '}
-        <Text style={styles.legalLink}>Privacy Policy</Text>.
+        {t('byContinuing')} <Text style={styles.legalLink}>{t('termsOfService')}</Text> {t('andText')}{' '}
+        <Text style={styles.legalLink}>{t('privacyPolicy')}</Text>.
       </Text>
     </ScrollView>
   );

@@ -5,7 +5,7 @@ import { ArrowLeftIcon, CheckCircleIcon } from '../../components/common/SvgIcons
 import { useApp } from '../../context/AppContext';
 
 export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
-  const { updateUser } = useApp();
+  const { updateUser, t } = useApp();
   const [docType, setDocType] = useState('Land');
   const [uploadedFile, setUploadedFile] = useState('land_record_khera.pdf');
   const [confirmed, setConfirmed] = useState(true);
@@ -25,7 +25,7 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
         <TouchableOpacity onPress={onBack}>
           <ArrowLeftIcon size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Registration</Text>
+        <Text style={styles.headerTitle}>{t('registrationTitle')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -35,7 +35,7 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
           <View style={[styles.stepCircle, styles.stepCircleDone]}>
             <Text style={styles.stepDoneCheck}>✓</Text>
           </View>
-          <Text style={[styles.stepLabel, styles.stepLabelDone]}>Personal</Text>
+          <Text style={[styles.stepLabel, styles.stepLabelDone]}>{t('personal')}</Text>
         </View>
 
         <View style={[styles.stepLine, styles.stepLineActive]} />
@@ -44,12 +44,12 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
           <View style={[styles.stepCircle, styles.stepCircleActive]}>
             <Text style={styles.stepCircleActiveText}>2</Text>
           </View>
-          <Text style={[styles.stepLabel, styles.stepLabelActive]}>Verify</Text>
+          <Text style={[styles.stepLabel, styles.stepLabelActive]}>{t('verify')}</Text>
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Verify your identity</Text>
-      <Text style={styles.sectionSubtitle}>Upload one document to confirm your land or identity</Text>
+      <Text style={styles.sectionTitle}>{t('verifyIdentityTitle')}</Text>
+      <Text style={styles.sectionSubtitle}>{t('uploadDocSubtitle')}</Text>
 
       {/* Document Type Selector */}
       <View style={styles.docTabs}>
@@ -59,7 +59,7 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
         >
           <Text style={styles.docTabIcon}>📄</Text>
           <Text style={[styles.docTabText, docType === 'Land' && styles.docTabTextActive]}>
-            Land Ownership Record
+            {t('landRecordTab')}
           </Text>
         </TouchableOpacity>
 
@@ -68,7 +68,7 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
           onPress={() => setDocType('Kisan')}
         >
           <Text style={styles.docTabIcon}>💳</Text>
-          <Text style={[styles.docTabText, docType === 'Kisan' && styles.docTabTextActive]}>Kisan ID Card</Text>
+          <Text style={[styles.docTabText, docType === 'Kisan' && styles.docTabTextActive]}>{t('kisanIdTab')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -79,8 +79,8 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
         activeOpacity={0.8}
       >
         <Text style={styles.uploadIcon}>☁️</Text>
-        <Text style={styles.uploadTextPrimary}>Tap to upload photo or PDF</Text>
-        <Text style={styles.uploadTextSecondary}>Max size 5MB - JPG, PNG or PDF</Text>
+        <Text style={styles.uploadTextPrimary}>{t('tapToUpload')}</Text>
+        <Text style={styles.uploadTextSecondary}>{t('maxSize5mb')}</Text>
       </TouchableOpacity>
 
       {/* Uploaded File Preview */}
@@ -103,7 +103,7 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
         <View style={[styles.checkbox, confirmed && styles.checkboxChecked]}>
           {confirmed && <Text style={styles.checkmarkText}>✓</Text>}
         </View>
-        <Text style={styles.checkboxLabel}>I confirm this document is authentic and belongs to me.</Text>
+        <Text style={styles.checkboxLabel}>{t('confirmDocAuthentic')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -112,7 +112,7 @@ export const RegistrationStep3Screen = ({ onSubmit, onBack }) => {
         disabled={!confirmed}
         activeOpacity={0.85}
       >
-        <Text style={styles.submitButtonText}>Submit for Verification</Text>
+        <Text style={styles.submitButtonText}>{t('submitForVerification')}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

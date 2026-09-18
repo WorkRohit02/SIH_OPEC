@@ -5,7 +5,7 @@ import { ArrowRightIcon } from '../../components/common/SvgIcons';
 import { useApp } from '../../context/AppContext';
 
 export const RegistrationSuccessScreen = ({ onGoHome, onEditDetails }) => {
-  const { user } = useApp();
+  const { user, t } = useApp();
 
   return (
     <ScrollView contentContainerStyle={styles.container} bounces={false}>
@@ -16,45 +16,45 @@ export const RegistrationSuccessScreen = ({ onGoHome, onEditDetails }) => {
           </View>
         </View>
 
-        <Text style={styles.title}>Registration Successful!</Text>
+        <Text style={styles.title}>{t('regSuccessTitle')}</Text>
         <Text style={styles.subtitle}>
-          Your details have been submitted. Verification usually takes 24-48 hours.
+          {t('regSuccessSubtitle')}
         </Text>
 
         <View style={styles.summaryCard}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.docIcon}>📄</Text>
-            <Text style={styles.docName}>Land Ownership Record</Text>
+            <Text style={styles.docName}>{t('landRecordTab')}</Text>
             <View style={styles.statusBadge}>
-              <Text style={styles.statusBadgeText}>Under Review</Text>
+              <Text style={styles.statusBadgeText}>{t('underReview')}</Text>
             </View>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Name</Text>
+            <Text style={styles.infoLabel}>{t('nameLabel')}</Text>
             <Text style={styles.infoValue}>{user.name || 'Ramesh Kumar'}</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Village</Text>
+            <Text style={styles.infoLabel}>{t('villageLabel')}</Text>
             <Text style={styles.infoValue}>{user.village || 'Khera, Delhi'}</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Preferred Mandi</Text>
-            <Text style={styles.infoValue}>{user.preferredMandi || 'Ghazipur Mandi'}</Text>
+            <Text style={styles.infoLabel}>{t('preferredMandiLabel')}</Text>
+            <Text style={styles.infoValue}>{user.preferredMandi ? (t('mandi_' + user.preferredMandi.replace(/\s+/g, '')) || user.preferredMandi) : t('ghazipurMandi')}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.bottomSection}>
         <TouchableOpacity style={styles.goHomeBtn} onPress={onGoHome} activeOpacity={0.85}>
-          <Text style={styles.goHomeText}>Go to Home</Text>
+          <Text style={styles.goHomeText}>{t('goToHomeBtn')}</Text>
           <ArrowRightIcon size={20} color="#FFFFFF" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.editBtn} onPress={onEditDetails}>
-          <Text style={styles.editText}>Edit Details</Text>
+          <Text style={styles.editText}>{t('editDetailsBtn')}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
